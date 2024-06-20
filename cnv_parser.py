@@ -43,60 +43,60 @@ class BodyData(BaseModel):
 class CnvParser:
     def __init__(self, file_cnv_path):
         self.file_cnv_path: str = file_cnv_path
-        self.data: str = str()
+        self.file_data: str = str()
 
         with (open(self.file_cnv_path, 'r') as file):
-            self.data = file.read()
+            self.file_data = file.read()
 
     def header_parse(self) -> HeaderData:
         header_data = HeaderData()
 
         regular = r'(?<=\*\sFileName\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             header_data.file_name = match[0]
 
         regular = r'(?<=\*\sSoftware\sVersion\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             header_data.software_version = float(match[0])
 
         regular = r'(?<=\*\sTemperature\sSN\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             header_data.temperature_sn = int(match[0])
 
         regular = r'(?<=\*\sConductivity\sSN\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             header_data.conductivity_sn = int(match[0])
 
         regular = r'(?<=Cruise:\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             header_data.cruise = match[0]
 
         regular = r'(?<=Vessel:\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             regular = r'\S+'
             match = re.search(regular, match[0])
             header_data.vessel_or_ship = match[0]
         else:
             regular = r'(?<=Ship:\s).+'
-            match = re.search(regular, self.data)
+            match = re.search(regular, self.file_data)
             if match:
                 regular = r'\S+'
                 match = re.search(regular, match[0])
                 header_data.vessel_or_ship = match[0]
 
         regular = r'(?<=Station:).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             header_data.station = match[0]
 
         regular = r'(?<=Latitude:\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             items = match[0].split()
             if len(items) == 3:
@@ -105,7 +105,7 @@ class CnvParser:
                 header_data.latitude = float(items[0]) + (float(items[1]) / 60)
 
         regular = r'(?<=Longitude:\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             items = match[0].split()
             if len(items) == 3:
@@ -114,18 +114,18 @@ class CnvParser:
                 header_data.longitude = float(items[0]) + (float(items[1]) / 60)
 
         regular = r'(?<=battery\stype\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             header_data.battery_type = match[0]
 
         regular = r'(?<=stored\svoltage\s#\s\d\s=\s).+'
-        match = re.findall(regular, self.data)
+        match = re.findall(regular, self.file_data)
         if match:
             for i in range(len(match)):
                 header_data.stored_voltage.append(match[i])
 
         regular = r'\scast\s+\d{1,2}.+'
-        match_data = re.search(regular, self.data)
+        match_data = re.search(regular, self.file_data)
         if match_data:
             regular = r'\scast\s+(\d{1,2})'
             match = re.search(regular, match_data[0])
@@ -158,48 +158,48 @@ class CnvParser:
         body_data = BodyData()
 
         regular = r'(?<=nquan\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             body_data.nquan = int(match[0])
 
         regular = r'(?<=nvalues\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             body_data.nvalues = int(match[0])
 
         regular = r'(?<=units\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             body_data.units = match[0]
 
         regular = r'#\sname\s\d{1,2}\s=\s(.+)'
-        match = re.findall(regular, self.data)
+        match = re.findall(regular, self.file_data)
         if match:
             for name in match:
                 body_data.name_list.append(name)
 
         regular = r'#\sspan\s\d{1,2}\s=\s(.+)'
-        match = re.findall(regular, self.data)
+        match = re.findall(regular, self.file_data)
         if match:
             for spans in match:
                 x_span, y_span = (spans.split(','))
                 body_data.spans_list.append([float(x_span), float(y_span)])
 
         regular = r'(?<=interval\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             metric, measurement = match[0].split()
             body_data.interval = [metric, float(measurement)]
 
         regular = r'(?<=start_time\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             regular = r'\w+\s\d+\s\d+\s\d+:\d+:\d+'
             match = re.search(regular, match[0])
             body_data.start_time = datetime.strptime(match[0], '%b %d %Y %X')
 
         regular = r'(?<=bad_flag\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             body_data.bad_flag = float(match[0])
 
@@ -222,13 +222,13 @@ class CnvParser:
         """
 
         regular = r'(?<=datcnv_in\s=\s).+'
-        match = re.search(regular, self.data)
+        match = re.search(regular, self.file_data)
         if match:
             body_data.hex_file, body_data.conf_file = match[0].split()
 
         # Table parser
         regular = r'(?<=\*END\*\n).+'
-        match = re.search(regular, self.data, flags=re.DOTALL)
+        match = re.search(regular, self.file_data, flags=re.DOTALL)
         table_row = match[0].split('\n')
         for row in table_row:
             regular = r'\d+.\d+'
