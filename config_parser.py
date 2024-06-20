@@ -45,6 +45,7 @@ class ConfData(BaseModel):
     pressure_AD590_M: Optional[float] = None
     pressure_AD590_B: Optional[float] = None
 
+
 class ConfigParser:
     def __init__(self, file_config_path):
         self.file_config_path: str = file_config_path
