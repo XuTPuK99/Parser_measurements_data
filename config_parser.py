@@ -51,10 +51,37 @@ class PressureSensor(Sensor):
     pressure_AD590_B: Optional[float] = None
 
 
-class BaseBuilder:
-    def __init__(self, data):
-        self.data = data
+class SensorBuilder:
+    def __init__(self, conf_data):
+        self.conf_data = conf_data
 
+
+class ConductivitySensorBuilder(SensorBuilder):
+    def get(self, num):
+        return SensorBuilder(
+            conductivity_M = self.conf_data[num],
+            conductivity_A = self.conf_data[num + 1],
+            conductivity_B = self.conf_data[num + 2],
+            conductivity_C = self.conf_data[num + 3],
+            conductivity_D = self.conf_data[num + 4],
+            conductivity_PCOR = self.conf_data[num + 5],
+            conductivity_cell_const = self.conf_data[num + 6],
+            conductivity_series_r = self.conf_data[num + 7],
+            conductivity_slope = self.conf_data[num + 8],
+            conductivity_offset = self.conf_data[num + 9],
+            conductivity_GHIJ = self.conf_data[num + 10]
+        )
+
+
+class FabricSensor:
+    fabric = {
+        0: ConductivitySensor,
+        1: TemperatureSensor,
+        2: PressureSensor
+    }
+
+
+"""
 class ConfigParser:
     def __init__(self, file_config_path):
         self.file_config_path: str = file_config_path
@@ -74,3 +101,4 @@ class ConfigParser:
             print(config_data)
 
         return config_data
+"""
