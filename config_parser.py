@@ -4,8 +4,11 @@ from typing import Optional, Union, List
 from pydantic import BaseModel
 
 
-class ConfData(BaseModel):
-    conductivity_sensor_number: Optional[str] = None
+class Sensor(BaseModel):
+    sensor_number: Optional[str] = None
+
+
+class ConductivitySensor(Sensor):
     conductivity_M: Optional[float] = None
     conductivity_A: Optional[float] = None
     conductivity_B: Optional[float] = None
@@ -18,7 +21,8 @@ class ConfData(BaseModel):
     conductivity_offset: Optional[float] = None
     conductivity_GHIJ: Optional[float] = None
 
-    temperature_sensor_number: Optional[str] = None
+
+class TemperatureSensor(Sensor):
     temperature_F0: Optional[float] = None
     temperature_A: Optional[float] = None
     temperature_B: Optional[float] = None
@@ -28,7 +32,8 @@ class ConfData(BaseModel):
     temperature_offset: Optional[float] = None
     temperature_GHIJ: Optional[float] = None
 
-    pressure_sensor_number: Optional[str] = None
+
+class PressureSensor(Sensor):
     pressure_T1: Optional[float] = None
     pressure_T2: Optional[float] = None
     pressure_T3: Optional[float] = None
@@ -46,6 +51,10 @@ class ConfData(BaseModel):
     pressure_AD590_B: Optional[float] = None
 
 
+class BaseBuilder:
+    def __init__(self, data):
+        self.data = data
+
 class ConfigParser:
     def __init__(self, file_config_path):
         self.file_config_path: str = file_config_path
@@ -56,5 +65,12 @@ class ConfigParser:
 
     def config_parse(self) -> ConfData:
         config_data = ConfData()
+
+        regular = r'^\d+$'
+        match = re.search(regular, self.file_data)
+        if match:
+            config_data.conductivity_sensor_number = match[0]
+
+            print(config_data)
 
         return config_data
