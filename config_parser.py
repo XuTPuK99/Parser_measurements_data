@@ -7,6 +7,7 @@ class Sensor(BaseModel):
 
 
 class ConductivitySensor(Sensor):
+    name_sensor: Optional[str] = 'ConductivitySensor'
     M: Optional[float] = None
     A: Optional[float] = None
     B: Optional[float] = None
@@ -21,6 +22,7 @@ class ConductivitySensor(Sensor):
 
 
 class TemperatureSensor(Sensor):
+    name_sensor: Optional[str] = 'TemperatureSensor'
     F0: Optional[float] = None
     A: Optional[float] = None
     B: Optional[float] = None
@@ -32,6 +34,7 @@ class TemperatureSensor(Sensor):
 
 
 class PressureSensor(Sensor):
+    name_sensor: Optional[str] = 'PressureSensor'
     T1: Optional[float] = None
     T2: Optional[float] = None
     T3: Optional[float] = None
