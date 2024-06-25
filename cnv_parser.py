@@ -36,8 +36,6 @@ class BodyData(BaseModel):
     hex_file: Optional[str] = None
     conf_file: Optional[str] = None
     table_data: Optional[List[List[float]]] = []
-    sensors_count: Optional[str] = None
-    list_channel: Optional[List[List]] = []
 
 
 class CnvParser:
