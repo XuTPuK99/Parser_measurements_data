@@ -79,41 +79,47 @@ class ConductivitySensorBuilder(SensorBuilder):
         split_string_1 = self.conf_data[num + 1].split(' ')
         split_string_2 = self.conf_data[num + 2].split(' ')
         split_string_3 = self.conf_data[num + 51]
-        if self.conf_data[num]:
-            return ConductivitySensor(
-                sensor_number=self.conf_data[num],
-                M=split_string_1[0],
-                A=split_string_1[1],
-                B=split_string_1[2],
-                C=split_string_1[3],
-                D=split_string_1[4],
-                CPCOR=split_string_1[5],
-                cell_const=split_string_2[0],
-                series_r=split_string_2[1],
-                slope=split_string_2[2],
-                offset=split_string_2[3],
-                GHIJ=split_string_2[4],
-                calibration_date=datetime.strptime(split_string_3, '%d-%b-%y')
-            )
+
+        if num >= len(self.conf_data) or not len(self.conf_data[num]) == 0:
+            return None
+
+        return ConductivitySensor(
+            sensor_number=self.conf_data[num],
+            M=split_string_1[0],
+            A=split_string_1[1],
+            B=split_string_1[2],
+            C=split_string_1[3],
+            D=split_string_1[4],
+            CPCOR=split_string_1[5],
+            cell_const=split_string_2[0],
+            series_r=split_string_2[1],
+            slope=split_string_2[2],
+            offset=split_string_2[3],
+            GHIJ=split_string_2[4],
+            calibration_date=datetime.strptime(split_string_3, '%d-%b-%y')
+        )
 
 
 class TemperatureSensorBuilder(SensorBuilder):
     def get(self, num):
         split_string_1 = self.conf_data[num + 1].split(' ')
         split_string_2 = self.conf_data[num + 49]
-        if self.conf_data[num]:
-            return TemperatureSensor(
-                sensor_number=self.conf_data[num],
-                F0=split_string_1[0],
-                A=split_string_1[1],
-                B=split_string_1[2],
-                C=split_string_1[3],
-                D=split_string_1[4],
-                slope=split_string_1[5],
-                offset=split_string_1[6],
-                GHIJ=split_string_1[7],
-                calibration_date=datetime.strptime(split_string_2, '%d-%b-%y')
-            )
+
+        if num >= len(self.conf_data) or not len(self.conf_data[num]) == 0:
+            return None
+
+        return TemperatureSensor(
+            sensor_number=self.conf_data[num],
+            F0=split_string_1[0],
+            A=split_string_1[1],
+            B=split_string_1[2],
+            C=split_string_1[3],
+            D=split_string_1[4],
+            slope=split_string_1[5],
+            offset=split_string_1[6],
+            GHIJ=split_string_1[7],
+            calibration_date=datetime.strptime(split_string_2, '%d-%b-%y')
+        )
 
 
 class PressureSensorBuilder(SensorBuilder):
@@ -122,26 +128,29 @@ class PressureSensorBuilder(SensorBuilder):
         split_string_2 = self.conf_data[num + 2].split(' ')
         split_string_3 = self.conf_data[num + 3].split(' ')
         split_string_4 = self.conf_data[num + 45]
-        if self.conf_data[num]:
-            return PressureSensor(
-                sensor_number=self.conf_data[num],
-                T1=split_string_1[0],
-                T2=split_string_1[1],
-                T3=split_string_1[2],
-                T4=split_string_1[3],
-                T5=split_string_1[4],
-                C1=split_string_2[0],
-                C2=split_string_2[1],
-                C3=split_string_2[2],
-                C4=split_string_2[3],
-                D1=split_string_3[0],
-                D2=split_string_3[1],
-                slope=split_string_3[2],
-                offset=split_string_3[3],
-                sensor_type=split_string_3[4],
-                AD590_M=split_string_3[5],
-                AD590_B=split_string_3[6],
-                calibration_date=datetime.strptime(split_string_4, '%d-%b-%y')
+
+        if num >= len(self.conf_data) or not len(self.conf_data[num]) == 0:
+            return None
+
+        return PressureSensor(
+            sensor_number=self.conf_data[num],
+            T1=split_string_1[0],
+            T2=split_string_1[1],
+            T3=split_string_1[2],
+            T4=split_string_1[3],
+            T5=split_string_1[4],
+            C1=split_string_2[0],
+            C2=split_string_2[1],
+            C3=split_string_2[2],
+            C4=split_string_2[3],
+            D1=split_string_3[0],
+            D2=split_string_3[1],
+            slope=split_string_3[2],
+            offset=split_string_3[3],
+            sensor_type=split_string_3[4],
+            AD590_M=split_string_3[5],
+            AD590_B=split_string_3[6],
+            calibration_date=datetime.strptime(split_string_4, '%d-%b-%y')
             )
 
 
