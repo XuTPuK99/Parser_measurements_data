@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+import datetime
 from typing import Optional, Union, List
 from pydantic import BaseModel
 
@@ -17,7 +17,7 @@ class HeaderData(BaseModel):
     battery_type: Optional[str] = None
     stored_voltage: Optional[List[str]] = []
     cast: Optional[int] = None
-    cast_date: Optional[datetime] = None
+    cast_date: Optional[datetime.datetime] = None
     samples: Optional[int] = None
     nv: Optional[int] = None
     avg: Optional[int] = None
@@ -31,7 +31,7 @@ class BodyData(BaseModel):
     name_list: Optional[List[str]] = []
     spans_list: Optional[List[List[float]]] = []
     interval: Optional[List[Union[str, float]]] = None # проверить валидацию!!!
-    start_time: Optional[datetime] = None
+    start_time: Optional[datetime.datetime] = None
     bad_flag: Optional[float] = None
     hex_file: Optional[str] = None
     conf_file: Optional[str] = None
@@ -194,7 +194,7 @@ class CnvParser:
         if match:
             regular = r'\w+\s\d+\s\d+\s\d+:\d+:\d+'
             match = re.search(regular, match[0])
-            body_data.start_time = datetime.strptime(match[0], '%b %d %Y %X')
+            body_data.start_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
 
         regular = r'(?<=bad_flag\s=\s).+'
         match = re.search(regular, self.file_data)
