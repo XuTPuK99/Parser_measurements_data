@@ -144,7 +144,7 @@ class SensorBuilder:
         self.conf_data = conf_data
 
     @staticmethod
-    def convert_str_in_mouth(self, month):
+    def convert_str_in_mouth(month):
         regular = r'\d{1,2}'
         match = re.search(regular, month)
         if match:
@@ -159,9 +159,8 @@ class SensorBuilder:
             if match:
                 return int(number + 1)
 
-
     @staticmethod
-    def convert_str_in_year(self, year):
+    def convert_str_in_year(year):
         regular = r'\d{1,2}'
         match = re.search(regular, year)
         if match:
@@ -172,7 +171,6 @@ class SensorBuilder:
 
             return int(year)
 
-    @staticmethod
     def cheking_date(self, date_string):
         if len(date_string) == 0:
             return None
@@ -187,19 +185,17 @@ class SensorBuilder:
             if match:
                 date = match[0].split('-')
                 day = int(date[0])
-                month = self.convert_str_in_mouth(self, date[1])
-                year = self.convert_str_in_year(self, date[2])
+                month = self.convert_str_in_mouth(date[1])
+                year = self.convert_str_in_year(date[2])
 
                 date = datetime.date(year=year, month=month, day=day)
                 return date
 
-    @staticmethod
-    def cheking_split_string(self, conf_data, num, offset=0):
-        if num + offset >= len(self.conf_data):
-            list_split_string = (None for i in range(len(conf_data[num + offset])))
-            return list_split_string
+    def cheking_split_string(self, num):
+        if num < 0 or num >= len(self.conf_data):
+            return None
         else:
-            list_split_string = conf_data[num + offset].split(' ')
+            list_split_string = self.conf_data[num].split(' ')
             return list_split_string
 
 
@@ -208,29 +204,29 @@ class ConductivitySensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 1)
-        split_string_2 = self.cheking_split_string(self, self.conf_data, num, 2)
-        date = self.cheking_date(self, self.cheking_split_string(self, self.conf_data, num, 51))
-        split_string_3 = self.cheking_split_string(self, self.conf_data, num, 109)
+        split_string_1 = self.cheking_split_string(self, num + 1)
+        split_string_2 = self.cheking_split_string(self, num + 2)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 51))
+        split_string_3 = self.cheking_split_string(self, num + 109)
 
         return ConductivitySensor(
             sensor_number=self.conf_data[num],
-            M=float(split_string_1[0]),
-            A=float(split_string_1[1]),
-            B=float(split_string_1[2]),
-            C=float(split_string_1[3]),
-            D=float(split_string_1[4]),
-            CPCOR_1=float(split_string_1[5]),
-            cell_const=float(split_string_2[0]),
-            series_r=float(split_string_2[1]),
-            slope=float(split_string_2[2]),
-            offset=float(split_string_2[3]),
+            M=float(split_string_1[0]) if split_string_1 else None,
+            A=float(split_string_1[1]) if split_string_1 else None,
+            B=float(split_string_1[2]) if split_string_1 else None,
+            C=float(split_string_1[3]) if split_string_1 else None,
+            D=float(split_string_1[4]) if split_string_1 else None,
+            CPCOR_1=float(split_string_1[5]) if split_string_1 else None,
+            cell_const=float(split_string_2[0]) if split_string_2 else None,
+            series_r=float(split_string_2[1]) if split_string_2 else None,
+            slope=float(split_string_2[2]) if split_string_2 else None,
+            offset=float(split_string_2[3]) if split_string_2 else None,
             calibration_date=date,
-            G=float(split_string_3[0]),
-            H=float(split_string_3[1]),
-            I=float(split_string_3[2]),
-            J=float(split_string_3[3]),
-            CTCOR_2=float(split_string_3[4])
+            G=float(split_string_3[0]) if split_string_3 else None,
+            H=float(split_string_3[1]) if split_string_3 else None,
+            I=float(split_string_3[2]) if split_string_3 else None,
+            J=float(split_string_3[3]) if split_string_3 else None,
+            CTCOR_2=float(split_string_3[4]) if split_string_3 else None
         )
 
 
@@ -239,27 +235,26 @@ class TemperatureSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 1)
-        split_string_2 = self.cheking_split_string(self, self.conf_data, num, 107)
-        date = self.cheking_date(self, self.cheking_split_string(
-            self, self.conf_data, num, 49))
+        split_string_1 = self.cheking_split_string(self, num + 1)
+        split_string_2 = self.cheking_split_string(self, num + 107)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 49))
 
         return TemperatureSensor(
             sensor_number=self.conf_data[num],
-            F0_1=float(split_string_1[0]),
-            A=float(split_string_1[1]),
-            B=float(split_string_1[2]),
-            C=float(split_string_1[3]),
-            D=float(split_string_1[4]),
-            slope=float(split_string_1[5]),
-            offset=float(split_string_1[6]),
-            GHIJ=float(split_string_1[7]),
+            F0_1=float(split_string_1[0]) if split_string_1 else None,
+            A=float(split_string_1[1]) if split_string_1 else None,
+            B=float(split_string_1[2]) if split_string_1 else None,
+            C=float(split_string_1[3]) if split_string_1 else None,
+            D=float(split_string_1[4]) if split_string_1 else None,
+            slope=float(split_string_1[5]) if split_string_1 else None,
+            offset=float(split_string_1[6]) if split_string_1 else None,
+            GHIJ=float(split_string_1[7]) if split_string_1 else None,
             calibration_date=date,
-            F0_2=float(split_string_2[0]),
-            G=float(split_string_2[1]),
-            H=float(split_string_2[2]),
-            I=float(split_string_2[3]),
-            J=float(split_string_2[4])
+            F0_2=float(split_string_2[0]) if split_string_2 else None,
+            G=float(split_string_2[1]) if split_string_2 else None,
+            H=float(split_string_2[2]) if split_string_2 else None,
+            I=float(split_string_2[3]) if split_string_2 else None,
+            J=float(split_string_2[4]) if split_string_2 else None
         )
 
 
@@ -268,29 +263,29 @@ class PressureSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 1)
-        split_string_2 = self.cheking_split_string(self, self.conf_data, num, 2)
-        split_string_3 = self.cheking_split_string(self, self.conf_data, num, 3)
-        date = self.cheking_date(self, self.cheking_split_string(self, self.conf_data, num, 45))
+        split_string_1 = self.cheking_split_string(self, num + 1)
+        split_string_2 = self.cheking_split_string(self, num + 2)
+        split_string_3 = self.cheking_split_string(self, num + 3)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 45))
 
         return PressureSensor(
             sensor_number=self.conf_data[num],
-            T1=float(split_string_1[0]),
-            T2=float(split_string_1[1]),
-            T3=float(split_string_1[2]),
-            T4=float(split_string_1[3]),
-            T5=float(split_string_1[4]),
-            C1=float(split_string_2[0]),
-            C2=float(split_string_2[1]),
-            C3=float(split_string_2[2]),
-            C4=float(split_string_2[3]),
-            D1=float(split_string_3[0]),
-            D2=float(split_string_3[1]),
-            slope=float(split_string_3[2]),
-            offset=float(split_string_3[3]),
-            sensor_type=float(split_string_3[4]),
-            AD590_M=float(split_string_3[5]),
-            AD590_B=float(split_string_3[6]),
+            T1=float(split_string_1[0]) if split_string_1 else None,
+            T2=float(split_string_1[1]) if split_string_1 else None,
+            T3=float(split_string_1[2]) if split_string_1 else None,
+            T4=float(split_string_1[3]) if split_string_1 else None,
+            T5=float(split_string_1[4]) if split_string_1 else None,
+            C1=float(split_string_2[0]) if split_string_2 else None,
+            C2=float(split_string_2[1]) if split_string_2 else None,
+            C3=float(split_string_2[2]) if split_string_2 else None,
+            C4=float(split_string_2[3]) if split_string_2 else None,
+            D1=float(split_string_3[0]) if split_string_3 else None,
+            D2=float(split_string_3[1]) if split_string_3 else None,
+            slope=float(split_string_3[2])  if split_string_3 else None,
+            offset=float(split_string_3[3]) if split_string_3 else None,
+            sensor_type=float(split_string_3[4]) if split_string_3 else None,
+            AD590_M=float(split_string_3[5]) if split_string_3 else None,
+            AD590_B=float(split_string_3[6]) if split_string_3 else None,
             calibration_date=date
             )
 
@@ -300,14 +295,14 @@ class TransmissometerSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 1)
-        date = self.cheking_date(self, self.cheking_split_string(self, self.conf_data, num, 38))
+        split_string_1 = self.cheking_split_string(self, num + 1)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 38))
 
         return TransmissometerSensor(
             sensor_number=self.conf_data[num],
-            M=split_string_1[0],
-            B=split_string_1[1],
-            path_length=split_string_1[2],
+            M=split_string_1[0] if split_string_1 else None,
+            B=split_string_1[1] if split_string_1 else None,
+            path_length=split_string_1[2] if split_string_1 else None,
             calibration_date=date
         )
 
@@ -330,16 +325,16 @@ class UserPolynomialSensorBuilder1(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, self.conf_data, num, 1))
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 2)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
+        split_string_1 = self.cheking_split_string(self, num + 2)
 
         return UserPolynomialSensor1(
             sensor_number=self.conf_data[num],
             calibration_date=date,
-            A0=float(split_string_1[0]),
-            A1=float(split_string_1[1]),
-            A2=float(split_string_1[2]),
-            A3=float(split_string_1[3])
+            A0=float(split_string_1[0]) if split_string_1 else None,
+            A1=float(split_string_1[1]) if split_string_1 else None,
+            A2=float(split_string_1[2]) if split_string_1 else None,
+            A3=float(split_string_1[3]) if split_string_1 else None
         )
 
 
@@ -348,16 +343,16 @@ class UserPolynomialSensorBuilder2(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, self.conf_data, num, 1))
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 2)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
+        split_string_1 = self.cheking_split_string(self, num + 2)
 
         return UserPolynomialSensor2(
             sensor_number=self.conf_data[num],
             calibration_date=date,
-            A0=float(split_string_1[0]),
-            A1=float(split_string_1[1]),
-            A2=float(split_string_1[2]),
-            A3=float(split_string_1[3])
+            A0=float(split_string_1[0]) if split_string_1 else None,
+            A1=float(split_string_1[1]) if split_string_1 else None,
+            A2=float(split_string_1[2]) if split_string_1 else None,
+            A3=float(split_string_1[3]) if split_string_1 else None
         )
 
 
@@ -366,16 +361,16 @@ class UserPolynomialSensorBuilder3(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, self.conf_data, num, 1))
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 2)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
+        split_string_1 = self.cheking_split_string(self, num + 2)
 
         return UserPolynomialSensor3(
             sensor_number=self.conf_data[num],
             calibration_date=date,
-            A0=float(split_string_1[0]),
-            A1=float(split_string_1[1]),
-            A2=float(split_string_1[2]),
-            A3=float(split_string_1[3])
+            A0=float(split_string_1[0]) if split_string_1 else None,
+            A1=float(split_string_1[1]) if split_string_1 else None,
+            A2=float(split_string_1[2]) if split_string_1 else None,
+            A3=float(split_string_1[3]) if split_string_1 else None
         )
 
 
@@ -384,34 +379,36 @@ class PrimaryOxygenSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, self.conf_data, num, 1))
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 2)
-        split_string_2 = self.cheking_split_string(self, self.conf_data, num, 3)
-        split_string_3 = self.cheking_split_string(self, self.conf_data, num, 95)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
+        split_string_1 = self.cheking_split_string(num + 2)
+        split_string_2 = self.cheking_split_string(num + 3)
+        split_string_3 = self.cheking_split_string(num + 95)
+
+        print(split_string_3)
 
         return PrimaryOxygenSensor(
             sensor_number=self.conf_data[num],
             calibration_date=date,
-            soc=float(split_string_1[0]),
-            tcor=float(split_string_1[1]),
-            offset=float(split_string_1[2]),
-            pcor=float(split_string_2[0]),
-            tau=float(split_string_2[1]),
-            boc=float(split_string_2[2]),
-            sea_beard_equation=float(split_string_3[0]),
-            soc2007=float(split_string_3[1]),
-            A=float(split_string_3[2]),
-            B=float(split_string_3[3]),
-            C=float(split_string_3[4]),
-            E=float(split_string_3[5]),
-            voffset=float(split_string_3[6]),
-            tau20=float(split_string_3[7]),
-            D0=float(split_string_3[8]),
-            D1=float(split_string_3[9]),
-            D2=float(split_string_3[10]),
-            H1=float(split_string_3[11]),
-            H2=float(split_string_3[12]),
-            H3=float(split_string_3[13])
+            soc=float(split_string_1[0]) if split_string_1 else None,
+            tcor=float(split_string_1[1]) if split_string_1 else None,
+            offset=float(split_string_1[2]) if split_string_1 else None,
+            pcor=float(split_string_2[0]) if split_string_2 else None,
+            tau=float(split_string_2[1]) if split_string_2 else None,
+            boc=float(split_string_2[2]) if split_string_2 else None,
+            sea_beard_equation=float(split_string_3[0]) if split_string_3 else None,
+            soc2007=float(split_string_3[1]) if split_string_3 else None,
+            A=float(split_string_3[2]) if split_string_3 else None,
+            B=float(split_string_3[3]) if split_string_3 else None,
+            C=float(split_string_3[4]) if split_string_3 else None,
+            E=float(split_string_3[5]) if split_string_3 else None,
+            voffset=float(split_string_3[6]) if split_string_3 else None,
+            tau20=float(split_string_3[7]) if split_string_3 else None,
+            D0=float(split_string_3[8]) if split_string_3 else None,
+            D1=float(split_string_3[9]) if split_string_3 else None,
+            D2=float(split_string_3[10]) if split_string_3 else None,
+            H1=float(split_string_3[11]) if split_string_3 else None,
+            H2=float(split_string_3[12]) if split_string_3 else None,
+            H3=float(split_string_3[13]) if split_string_3 else None
         )
 
 
@@ -420,15 +417,15 @@ class OBSSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, self.conf_data, num, 1))
-        split_string_1 = self.cheking_split_string(self, self.conf_data, num, 2)
+        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
+        split_string_1 = self.cheking_split_string(self, num + 2)
 
         return TransmissometerSensor(
             sensor_number=self.conf_data[num],
             calibration_date=date,
-            a0=float(split_string_1[0]),
-            a1=float(split_string_1[1]),
-            a2=float(split_string_1[2])
+            a0=float(split_string_1[0]) if split_string_1 else None,
+            a1=float(split_string_1[1]) if split_string_1 else None,
+            a2=float(split_string_1[2]) if split_string_1 else None
         )
 
 
