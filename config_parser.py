@@ -1,6 +1,6 @@
 import re
 import datetime
-from typing import Optional
+from typing import Optional, List, Type
 from pydantic import BaseModel
 
 
@@ -191,7 +191,7 @@ class SensorBuilder:
                 date = datetime.date(year=year, month=month, day=day)
                 return date
 
-    def cheking_split_string(self, num):
+    def split_string(self, num):
         if num < 0 or num >= len(self.conf_data):
             return None
         else:
@@ -204,10 +204,10 @@ class ConductivitySensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        split_string_1 = self.cheking_split_string(self, num + 1)
-        split_string_2 = self.cheking_split_string(self, num + 2)
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 51))
-        split_string_3 = self.cheking_split_string(self, num + 109)
+        split_string_1 = self.split_string(num + 1)
+        split_string_2 = self.split_string(num + 2)
+        date = self.cheking_date(self.split_string(num + 51))
+        split_string_3 = self.split_string(num + 109)
 
         return ConductivitySensor(
             sensor_number=self.conf_data[num],
@@ -235,9 +235,9 @@ class TemperatureSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        split_string_1 = self.cheking_split_string(self, num + 1)
-        split_string_2 = self.cheking_split_string(self, num + 107)
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 49))
+        split_string_1 = self.split_string(num + 1)
+        split_string_2 = self.split_string(num + 107)
+        date = self.cheking_date(self.split_string(num + 49))
 
         return TemperatureSensor(
             sensor_number=self.conf_data[num],
@@ -263,10 +263,10 @@ class PressureSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        split_string_1 = self.cheking_split_string(self, num + 1)
-        split_string_2 = self.cheking_split_string(self, num + 2)
-        split_string_3 = self.cheking_split_string(self, num + 3)
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 45))
+        split_string_1 = self.split_string(num + 1)
+        split_string_2 = self.split_string(num + 2)
+        split_string_3 = self.split_string(num + 3)
+        date = self.cheking_date(self.split_string(num + 45))
 
         return PressureSensor(
             sensor_number=self.conf_data[num],
@@ -295,8 +295,8 @@ class TransmissometerSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        split_string_1 = self.cheking_split_string(self, num + 1)
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 38))
+        split_string_1 = self.split_string(num + 1)
+        date = self.cheking_date(self.split_string(num + 38))
 
         return TransmissometerSensor(
             sensor_number=self.conf_data[num],
@@ -325,8 +325,8 @@ class UserPolynomialSensorBuilder1(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
-        split_string_1 = self.cheking_split_string(self, num + 2)
+        date = self.cheking_date(self.split_string(num + 1))
+        split_string_1 = self.split_string(num + 2)
 
         return UserPolynomialSensor1(
             sensor_number=self.conf_data[num],
@@ -343,8 +343,8 @@ class UserPolynomialSensorBuilder2(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
-        split_string_1 = self.cheking_split_string(self, num + 2)
+        date = self.cheking_date(self.split_string(num + 1))
+        split_string_1 = self.split_string(num + 2)
 
         return UserPolynomialSensor2(
             sensor_number=self.conf_data[num],
@@ -361,8 +361,8 @@ class UserPolynomialSensorBuilder3(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
-        split_string_1 = self.cheking_split_string(self, num + 2)
+        date = self.cheking_date(self.split_string(num + 1))
+        split_string_1 = self.split_string(num + 2)
 
         return UserPolynomialSensor3(
             sensor_number=self.conf_data[num],
@@ -379,12 +379,10 @@ class PrimaryOxygenSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
-        split_string_1 = self.cheking_split_string(num + 2)
-        split_string_2 = self.cheking_split_string(num + 3)
-        split_string_3 = self.cheking_split_string(num + 95)
-
-        print(split_string_3)
+        date = self.cheking_date(self.split_string(num + 1))
+        split_string_1 = self.split_string(num + 2)
+        split_string_2 = self.split_string(num + 3)
+        split_string_3 = self.split_string(num + 95)
 
         return PrimaryOxygenSensor(
             sensor_number=self.conf_data[num],
@@ -417,8 +415,8 @@ class OBSSensorBuilder(SensorBuilder):
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        date = self.cheking_date(self, self.cheking_split_string(self, num + 1))
-        split_string_1 = self.cheking_split_string(self, num + 2)
+        date = self.cheking_date(self.split_string(num + 1))
+        split_string_1 = self.split_string(num + 2)
 
         return TransmissometerSensor(
             sensor_number=self.conf_data[num],
@@ -449,17 +447,25 @@ class FabricSensor:
         return None
 
 
+class ConfData(BaseModel):
+    sensors: List[Type[Sensor]] = []
+
+
 class ConfParser:
     def __init__(self, file_config_path):
-        file_config_path: str = file_config_path
-        config_file_data: list[str]
+        self.file_config_path: str = file_config_path
 
+    def conf_parse(self):
         fabric = FabricSensor()
+        conf_data = ConfData()
 
-        with (open(file_config_path, 'r')) as file:
+        with (open(self.file_config_path, 'r')) as file:
             config_file_data = file.read().splitlines()
 
         for i in range(len(config_file_data)):
             entity = fabric.get(i, config_file_data)
             if entity:
                 print(entity)
+                conf_data.sensors.append(entity)
+
+        return conf_data
