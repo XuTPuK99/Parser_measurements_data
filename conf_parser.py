@@ -86,6 +86,7 @@ class UserPolynomialSensor1(Sensor):
     A1: Optional[float] = None
     A2: Optional[float] = None
     A3: Optional[float] = None
+    UserPoly1: Optional[str] = None
 
 
 class UserPolynomialSensor2(Sensor):
@@ -95,6 +96,7 @@ class UserPolynomialSensor2(Sensor):
     A1: Optional[float] = None
     A2: Optional[float] = None
     A3: Optional[float] = None
+    UserPoly2: Optional[str] = None
 
 
 class UserPolynomialSensor3(Sensor):
@@ -104,6 +106,7 @@ class UserPolynomialSensor3(Sensor):
     A1: Optional[float] = None
     A2: Optional[float] = None
     A3: Optional[float] = None
+    UserPoly3: Optional[str] = None
 
 
 class PrimaryOxygenSensor(Sensor):
@@ -148,7 +151,7 @@ class SensorBuilder:
         regular = r'\d{1,2}'
         match = re.search(regular, month)
         if match:
-            return month
+            return int(month)
 
         regulars = [r'Jan?(?:uary|\.?)', r'Feb?(?:ruary|\.?)', r'Mar?(?:ch|\.?)', r'Apr?(?:il|\.?)',
                     r'May', r'Jun(?:e|\.?)',  r'Jul(?:e|\.?)',  r'Aug?(?:ust|\.?)',r'Sept?(?:ember|\.?)',
@@ -161,15 +164,16 @@ class SensorBuilder:
 
     @staticmethod
     def convert_str_in_year(year):
-        regular = r'\d{1,2}'
+        regular = r'\d{1,4}'
         match = re.search(regular, year)
         if match:
-            if int(year) < 80:
-                year = f'20{year}'
-            else:
-                year = f'19{year}'
-
+            if len(match[0]) == 2:
+                if int(year) < 80:
+                    year = f'20{year}'
+                else:
+                    year = f'19{year}'
             return int(year)
+        return None
 
     def cheking_date(self, date_string):
         if len(date_string) == 0:
@@ -327,6 +331,7 @@ class UserPolynomialSensorBuilder1(SensorBuilder):
 
         date = self.cheking_date(self.split_string(num + 1))
         split_string_1 = self.split_string(num + 2)
+        split_string_2 = self.conf_data[num + 128]
 
         return UserPolynomialSensor1(
             sensor_number=self.conf_data[num],
@@ -334,7 +339,8 @@ class UserPolynomialSensorBuilder1(SensorBuilder):
             A0=float(split_string_1[0]) if split_string_1 else None,
             A1=float(split_string_1[1]) if split_string_1 else None,
             A2=float(split_string_1[2]) if split_string_1 else None,
-            A3=float(split_string_1[3]) if split_string_1 else None
+            A3=float(split_string_1[3]) if split_string_1 else None,
+            UserPoly1=str(split_string_2) if split_string_2 else None
         )
 
 
@@ -345,6 +351,7 @@ class UserPolynomialSensorBuilder2(SensorBuilder):
 
         date = self.cheking_date(self.split_string(num + 1))
         split_string_1 = self.split_string(num + 2)
+        split_string_2 = self.conf_data[num + 126]
 
         return UserPolynomialSensor2(
             sensor_number=self.conf_data[num],
@@ -352,7 +359,8 @@ class UserPolynomialSensorBuilder2(SensorBuilder):
             A0=float(split_string_1[0]) if split_string_1 else None,
             A1=float(split_string_1[1]) if split_string_1 else None,
             A2=float(split_string_1[2]) if split_string_1 else None,
-            A3=float(split_string_1[3]) if split_string_1 else None
+            A3=float(split_string_1[3]) if split_string_1 else None,
+            UserPoly2=str(split_string_2) if split_string_2 else None
         )
 
 
@@ -363,6 +371,7 @@ class UserPolynomialSensorBuilder3(SensorBuilder):
 
         date = self.cheking_date(self.split_string(num + 1))
         split_string_1 = self.split_string(num + 2)
+        split_string_2 = self.conf_data[num + 124]
 
         return UserPolynomialSensor3(
             sensor_number=self.conf_data[num],
@@ -370,7 +379,8 @@ class UserPolynomialSensorBuilder3(SensorBuilder):
             A0=float(split_string_1[0]) if split_string_1 else None,
             A1=float(split_string_1[1]) if split_string_1 else None,
             A2=float(split_string_1[2]) if split_string_1 else None,
-            A3=float(split_string_1[3]) if split_string_1 else None
+            A3=float(split_string_1[3]) if split_string_1 else None,
+            UserPoly3=str(split_string_2) if split_string_2 else None
         )
 
 
@@ -465,7 +475,6 @@ class ConfParser:
         for i in range(len(config_file_data)):
             entity = fabric.get(i, config_file_data)
             if entity:
-                print(entity)
                 conf_data.sensors.append(entity)
 
         return conf_data

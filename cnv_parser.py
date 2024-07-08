@@ -22,19 +22,19 @@ class HeaderData(BaseModel):
     nv: Optional[int] = None
     avg: Optional[int] = None
     stop: Optional[str] = None
-
-
-class BodyData(BaseModel):
     nquan: Optional[int] = None
     nvalues: Optional[int] = None
     units: Optional[str] = None
     name_list: Optional[List[str]] = []
     spans_list: Optional[List[List[float]]] = []
-    interval: Optional[List[Union[str, float]]] = None # проверить валидацию!!!
+    interval: Optional[List[Union[str, float]]] = None
     start_time: Optional[datetime.datetime] = None
     bad_flag: Optional[float] = None
     hex_file: Optional[str] = None
     conf_file: Optional[str] = None
+
+
+class BodyData(BaseModel):
     table_data: Optional[List[List[float]]] = []
 
 
@@ -150,79 +150,79 @@ class CnvParser:
             if match:
                 header_data.stop = match[1]
 
+            regular = r'(?<=nquan\s=\s).+'
+            match = re.search(regular, self.file_data)
+            if match:
+                header_data.nquan = int(match[0])
+
+            regular = r'(?<=nvalues\s=\s).+'
+            match = re.search(regular, self.file_data)
+            if match:
+                header_data.nvalues = int(match[0])
+
+            regular = r'(?<=units\s=\s).+'
+            match = re.search(regular, self.file_data)
+            if match:
+                header_data.units = match[0]
+
+            regular = r'#\sname\s\d{1,2}\s=\s(.+)'
+            match = re.findall(regular, self.file_data)
+            if match:
+                for name in match:
+                    header_data.name_list.append(name)
+
+            regular = r'#\sspan\s\d{1,2}\s=\s(.+)'
+            match = re.findall(regular, self.file_data)
+            if match:
+                for spans in match:
+                    x_span, y_span = (spans.split(','))
+                    header_data.spans_list.append([float(x_span), float(y_span)])
+
+            regular = r'(?<=interval\s=\s).+'
+            match = re.search(regular, self.file_data)
+            if match:
+                metric, measurement = match[0].split()
+                header_data.interval = [metric, float(measurement)]
+
+            regular = r'(?<=start_time\s=\s).+'
+            match = re.search(regular, self.file_data)
+            if match:
+                regular = r'\w+\s\d+\s\d+\s\d+:\d+:\d+'
+                match = re.search(regular, match[0])
+                header_data.start_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
+
+            regular = r'(?<=bad_flag\s=\s).+'
+            match = re.search(regular, self.file_data)
+            if match:
+                header_data.bad_flag = float(match[0])
+
+            # XML parser, НЕ РАБОТАЕТ
+            """
+            regular = r'\<.+\>'
+            match = re.findall(regular, self.data)
+            string_data: str = str()
+            if match:
+                for data in match:
+                    string_data = string_data + data
+                regular = r'<Sensors count="\d"\s>'
+                match = re.search(regular, string_data)
+                self.xml_data.sensors_count = match[0]
+
+                regular = r'<sensor\sChannel="\d"\s>.+?</sensor>'
+                match = re.findall(regular, string_data)
+                for i in match:
+                    print(i)
+            """
+
+            regular = r'(?<=datcnv_in\s=\s).+'
+            match = re.search(regular, self.file_data)
+            if match:
+                header_data.hex_file, header_data.conf_file = match[0].split()
+
             return header_data
 
     def body_parse(self) -> BodyData:
         body_data = BodyData()
-
-        regular = r'(?<=nquan\s=\s).+'
-        match = re.search(regular, self.file_data)
-        if match:
-            body_data.nquan = int(match[0])
-
-        regular = r'(?<=nvalues\s=\s).+'
-        match = re.search(regular, self.file_data)
-        if match:
-            body_data.nvalues = int(match[0])
-
-        regular = r'(?<=units\s=\s).+'
-        match = re.search(regular, self.file_data)
-        if match:
-            body_data.units = match[0]
-
-        regular = r'#\sname\s\d{1,2}\s=\s(.+)'
-        match = re.findall(regular, self.file_data)
-        if match:
-            for name in match:
-                body_data.name_list.append(name)
-
-        regular = r'#\sspan\s\d{1,2}\s=\s(.+)'
-        match = re.findall(regular, self.file_data)
-        if match:
-            for spans in match:
-                x_span, y_span = (spans.split(','))
-                body_data.spans_list.append([float(x_span), float(y_span)])
-
-        regular = r'(?<=interval\s=\s).+'
-        match = re.search(regular, self.file_data)
-        if match:
-            metric, measurement = match[0].split()
-            body_data.interval = [metric, float(measurement)]
-
-        regular = r'(?<=start_time\s=\s).+'
-        match = re.search(regular, self.file_data)
-        if match:
-            regular = r'\w+\s\d+\s\d+\s\d+:\d+:\d+'
-            match = re.search(regular, match[0])
-            body_data.start_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
-
-        regular = r'(?<=bad_flag\s=\s).+'
-        match = re.search(regular, self.file_data)
-        if match:
-            body_data.bad_flag = float(match[0])
-
-        # XML parser
-        """
-        regular = r'\<.+\>'
-        match = re.findall(regular, self.data)
-        string_data: str = str()
-        if match:
-            for data in match:
-                string_data = string_data + data
-            regular = r'<Sensors count="\d"\s>'
-            match = re.search(regular, string_data)
-            self.xml_data.sensors_count = match[0]
-
-            regular = r'<sensor\sChannel="\d"\s>.+?</sensor>'
-            match = re.findall(regular, string_data)
-            for i in match:
-                print(i)
-        """
-
-        regular = r'(?<=datcnv_in\s=\s).+'
-        match = re.search(regular, self.file_data)
-        if match:
-            body_data.hex_file, body_data.conf_file = match[0].split()
 
         # Table parser
         regular = r'(?<=\*END\*\n).+'
