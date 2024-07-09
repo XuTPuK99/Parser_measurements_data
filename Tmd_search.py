@@ -8,9 +8,9 @@ class TmdSearch:
     def search(self):
         tdm = (-0.002 * self.pd_cnv_data['depFM: Depth [fresh water, m]']) + 3.9667
         self.pd_cnv_data.insert(loc=11, column='Tdm', value=tdm)
-        self.pd_cnv_data['Temperature > Tdm '] = (self.pd_cnv_data['t090C: Temperature [ITS-90, deg C]'] >
+        self.pd_cnv_data['Temperature < Tdm '] = (self.pd_cnv_data['t090C: Temperature [ITS-90, deg C]'] <
                                                   self.pd_cnv_data['Tdm'])
-        score_tdm = self.pd_cnv_data['Temperature > Tdm '].value_counts()
+        score_tdm = self.pd_cnv_data['Temperature < Tdm '].value_counts()
         print(self.pd_cnv_data[['t090C: Temperature [ITS-90, deg C]', 'Tdm',
-                                'Temperature > Tdm ']].head())
+                                'Temperature < Tdm ']].head())
         print(score_tdm)
