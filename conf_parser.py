@@ -1,6 +1,6 @@
 import re
 import datetime
-from typing import Optional, List, Type
+from typing import Optional, List, Type, Union
 from pydantic import BaseModel
 
 
