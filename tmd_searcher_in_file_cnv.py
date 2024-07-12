@@ -18,5 +18,4 @@ class TmdSearch:
                                 value=self.pd_cnv_data.iloc[:, 2] < self.pd_cnv_data.iloc[:, second_column])
         value_counts = self.pd_cnv_data['Temperature < Tdm'].value_counts()
 
-        print(value_counts)
         return value_counts

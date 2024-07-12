@@ -39,12 +39,17 @@ class BodyData(BaseModel):
 
 
 class CnvParser:
-    def __init__(self, file_cnv_path):
-        self.file_cnv_path: str = file_cnv_path
+    def __init__(self, files_cnv):
+        self.files_cnv: List[str] = files_cnv
         self.file_data: str = str()
+        self.files_data: List[str] = []
 
-        with (open(self.file_cnv_path, 'r') as file):
-            self.file_data = file.read()
+        for number, file_cnv in enumerate(files_cnv):
+            with (open(file_cnv, 'r') as file):
+                self.file_data = file.read()
+            self.files_data.append(self.file_data)
+
+        print(len(self.files_data))
 
     def header_parse(self) -> HeaderData:
         header_data = HeaderData()
@@ -229,7 +234,7 @@ class CnvParser:
         match = re.search(regular, self.file_data, flags=re.DOTALL)
         table_row = match[0].split('\n')
         for row in table_row:
-            regular = r'\d+.\d+'
+            regular = r'\S+'
             match = re.findall(regular, row)
             if match:
                 body_data.table_data.append([float(item) for item in match])
