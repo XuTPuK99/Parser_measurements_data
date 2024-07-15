@@ -3,4 +3,7 @@
 **\__pycache__
 cnv
 config
+result
+result_tmd_search
+CTD_Data
 *.JSON
