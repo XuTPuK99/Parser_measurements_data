@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 
 class HeaderData(BaseModel):
+    name_file_cnv: Optional[str] = None
     file_name: Optional[str] = None
     software_version: Optional[float] = None
     temperature_sn: Optional[int] = None
@@ -44,17 +45,22 @@ class CnvParser:
         self.list_body_data: List[BodyData] = []
 
         self.files_cnv: List[str] = files_cnv if isinstance(files_cnv, list) else [files_cnv]
-        self.file_data: str = str()
+
         self.files_data: List[str] = []
+        self.names_files_cnv: List[str] = []
 
         for number, file_cnv in enumerate(self.files_cnv):
+            name_file_cnv = file_cnv
             with (open(file_cnv, 'r') as file):
-                self.file_data = file.read()
-            self.files_data.append(self.file_data)
+                file_data = file.read()
+            self.names_files_cnv.append(name_file_cnv)
+            self.files_data.append(file_data)
 
     def header_parse(self) -> List[HeaderData]:
-        for file in self.files_data:
+        for number, file in enumerate(self.files_data):
             header_data = HeaderData()
+
+            header_data.name_file_cnv = self.names_files_cnv[number]
 
             regular = r'(?<=\*\sFileName\s=\s).+'
             match = re.search(regular, file)
@@ -203,23 +209,23 @@ class CnvParser:
             if match:
                 header_data.bad_flag = float(match[0])
 
-                # XML parser, НЕ РАБОТАЕТ
-                """
-                regular = r'\<.+\>'
-                match = re.findall(regular, self.data)
-                string_data: str = str()
-                if match:
-                    for data in match:
-                        string_data = string_data + data
-                    regular = r'<Sensors count="\d"\s>'
-                    match = re.search(regular, string_data)
-                    self.xml_data.sensors_count = match[0]
+            # XML parser, НЕ РАБОТАЕТ
+            """
+            regular = r'\<.+\>'
+            match = re.findall(regular, self.data)
+            string_data: str = str()
+            if match:
+                for data in match:
+                    string_data = string_data + data
+                regular = r'<Sensors count="\d"\s>'
+                match = re.search(regular, string_data)
+                self.xml_data.sensors_count = match[0]
     
-                    regular = r'<sensor\sChannel="\d"\s>.+?</sensor>'
-                    match = re.findall(regular, string_data)
-                    for i in match:
-                        print(i)
-                """
+                regular = r'<sensor\sChannel="\d"\s>.+?</sensor>'
+                match = re.findall(regular, string_data)
+                for i in match:
+                    print(i)
+            """
 
             regular = r'(?<=datcnv_in\s=\s).+'
             match = re.search(regular, file)
@@ -236,7 +242,7 @@ class CnvParser:
 
             # Table parser
             regular = r'(?<=\*END\*\n).+'
-            match = re.search(regular, self.file_data, flags=re.DOTALL)
+            match = re.search(regular, file, flags=re.DOTALL)
             table_row = match[0].split('\n')
             for row in table_row:
                 regular = r'\S+'
