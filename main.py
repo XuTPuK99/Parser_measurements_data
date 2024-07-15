@@ -17,9 +17,8 @@ if __name__ == '__main__':
     conf_data = conf_files.conf_parse()
 
     tmd_search = TmdSearch(cnv_header_data, cnv_body_data)
-    tmd_search.search()
 
-    #WriteToFile.write_to_file_tmd_result(tmd_search.search(), '\\.', 'result')
+    WriteToFile.write_to_file_tmd_result(tmd_search.search(), 'result_tmd_search\\', 'result.txt')
 
     #WriteToFile.export_to_json_cnv(cnv_body_data, 'result\\', 'result')
     #WriteToFile.export_to_json_conf(conf_data, 'result\\', 'result')

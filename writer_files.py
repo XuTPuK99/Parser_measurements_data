@@ -16,5 +16,5 @@ class WriteToFile:
 
     @staticmethod
     def write_to_file_tmd_result(result_tmd_data, file_path, name_file):
-        result_tmd_data = result_tmd_data
-        result_tmd_data.to_csv('tdm_search_result.txt')
+        result_tmd_data.to_csv(f'{file_path}{name_file}', sep='\t', index=False)
+
