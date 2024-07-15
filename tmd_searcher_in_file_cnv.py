@@ -12,7 +12,7 @@ class TmdSearch:
             self.list_pd_cnv_data.append(self.pd_cnv_data)
 
     def search(self):
-        result = []
+        result = pd.DataFrame()
 
         for number, dataframe in enumerate(self.list_pd_cnv_data):
 
@@ -26,8 +26,16 @@ class TmdSearch:
             dataframe.insert(loc=second_column, column='Tdm', value=tdm)
             dataframe.insert(loc=second_column + 1, column='Temperature < Tdm',
                              value=dataframe.iloc[:, 2] < dataframe.iloc[:, second_column])
-            table_result = dataframe['Temperature < Tdm'].value_counts()
-            table_result = table_result.rename(self.cnv_header_data[number].name_file_cnv)
-            result.append(table_result)
+            result_tdm = dataframe['Temperature < Tdm'].value_counts()
+
+            print(result_tdm)
+
+
+
+
+
+
+            #table_result = table_result.rename(self.cnv_header_data[number].name_file_cnv)
+            #result.append(table_result)
 
         return result
