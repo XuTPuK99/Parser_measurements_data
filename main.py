@@ -17,7 +17,7 @@ if __name__ == '__main__':
     conf_data = conf_files.conf_parse()
 
     tmd_search = TmdSearch(cnv_header_data, cnv_body_data)
-    #tmd_search.search()
+    tmd_search.search()
 
     #ExportToJson.export_to_json_cnv(cnv_body_data, 'result\\', 'result')
     #ExportToJson.export_to_json_conf(conf_data, 'result\\', 'result')

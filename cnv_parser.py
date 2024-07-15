@@ -43,11 +43,11 @@ class CnvParser:
         self.list_header_data: List[HeaderData] = []
         self.list_body_data: List[BodyData] = []
 
-        self.files_cnv: List[str] = files_cnv
+        self.files_cnv: List[str] = files_cnv if isinstance(files_cnv, list) else [files_cnv]
         self.file_data: str = str()
         self.files_data: List[str] = []
 
-        for number, file_cnv in enumerate(files_cnv):
+        for number, file_cnv in enumerate(self.files_cnv):
             with (open(file_cnv, 'r') as file):
                 self.file_data = file.read()
             self.files_data.append(self.file_data)
@@ -165,7 +165,7 @@ class CnvParser:
             regular = r'(?<=nvalues\s=\s).+'
             match = re.search(regular, file)
             if match:
-                 header_data.nvalues = int(match[0])
+                header_data.nvalues = int(match[0])
 
             regular = r'(?<=units\s=\s).+'
             match = re.search(regular, file)

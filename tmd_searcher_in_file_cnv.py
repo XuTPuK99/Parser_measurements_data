@@ -4,13 +4,13 @@ import pandas as pd
 class TmdSearch:
     def __init__(self, cnv_header_data, cnv_body_data):
         self.list_pd_cnv_data = []
-        #for number in range(len(cnv_header_data)):
-        print(cnv_header_data[0].name_list)
-        print(cnv_body_data[0].table_data)
-        print('--------------------------')
-            #self.pd_cnv_data = pd.DataFrame(columns=cnv_header_data[number].name_list,
-             #                               data=cnv_body_data[number].table_data)
-            #self.list_pd_cnv_data.append(self.pd_cnv_data)
+        for number in range(len(cnv_header_data)):
+        #print(cnv_header_data[0].name_list)
+        #print(cnv_body_data[0].table_data)
+        #print('--------------------------')
+            self.pd_cnv_data = pd.DataFrame(columns=cnv_header_data[number].name_list,
+                                            data=cnv_body_data[number].table_data)
+            self.list_pd_cnv_data.append(self.pd_cnv_data)
 
     def search(self):
         k = -0.00000007610308758
