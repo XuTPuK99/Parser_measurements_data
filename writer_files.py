@@ -1,6 +1,3 @@
-
-
-
 class WriteToFile:
     @staticmethod
     def export_to_json_cnv(cnv_data, file_path, name_file):

@@ -61,6 +61,7 @@ class CnvParser:
             header_data = HeaderData()
 
             header_data.name_file_cnv = self.names_files_cnv[number]
+            print(header_data.name_file_cnv)
 
             regular = r'(?<=\*\sFileName\s=\s).+'
             match = re.search(regular, file)
@@ -82,23 +83,25 @@ class CnvParser:
             if match:
                 header_data.conductivity_sn = int(match[0])
 
-            regular = r'(?<=Cruise:\s).+'
+            regular = r'(?<=Cruise:).+'
             match = re.search(regular, file)
             if match:
                 header_data.cruise = match[0]
 
-            regular = r'(?<=Vessel:\s).+'
+            regular = r'(?<=Vessel:).+'
             match = re.search(regular, file)
             if match:
                 regular = r'\S+'
                 match = re.search(regular, match[0])
-                header_data.vessel_or_ship = match[0]
-            else:
-                regular = r'(?<=Ship:\s).+'
-                match = re.search(regular, file)
                 if match:
-                    regular = r'\S+'
-                    match = re.search(regular, match[0])
+                    header_data.vessel_or_ship = match[0]
+
+            regular = r'(?<=Ship:).+'
+            match = re.search(regular, file)
+            if match:
+                regular = r'\S+'
+                match = re.search(regular, match[0])
+                if match:
                     header_data.vessel_or_ship = match[0]
 
             regular = r'(?<=Station:).+'
@@ -106,23 +109,47 @@ class CnvParser:
             if match:
                 header_data.station = match[0]
 
-            regular = r'(?<=Latitude:\s).+'
+            regular = r'(?<=Latitude:).+'
             match = re.search(regular, file)
             if match:
-                items = match[0].split()
-                if len(items) == 3:
-                    header_data.latitude = float(items[0]) + (float(f'{items[1]}.{items[2]}') / 60)
-                else:
-                    header_data.latitude = float(items[0]) + (float(items[1]) / 60)
+                item = (match[0].replace(',', '.').replace('N', ' ')
+                        .replace('..', ' ').replace("'", " ")
+                        .replace("''", " ").replace('"', ' ')
+                        .replace('y', ' '))
+                regular = r'\d+\.\d+\.\d+'
+                match = re.search(regular, item)
+                if match:
+                    item = item.replace('.', ' ')
 
-            regular = r'(?<=Longitude:\s).+'
+                items = item.split()
+                if items:
+                    if len(items) == 3:
+                        header_data.latitude = float(items[0]) + (float(items[1]) / 60) + (float(items[2]) / 3600)
+                    if len(items) == 2:
+                        header_data.latitude = float(items[0]) + (float(items[1]) / 60)
+                    if len(items) == 1:
+                        header_data.latitude = float(items[0])
+
+            regular = r'(?<=Longitude:).+'
             match = re.search(regular, file)
             if match:
-                items = match[0].split()
-                if len(items) == 3:
-                    header_data.longitude = float(items[0]) + (float(f'{items[1]}.{items[2]}') / 60)
-                else:
-                    header_data.longitude = float(items[0]) + (float(items[1]) / 60)
+                item = (match[0].replace(',', '.').replace('E', ' ')
+                        .replace('..', ' ').replace("'", " ")
+                        .replace("''", " ").replace('"', ' ')
+                        .replace('y', ''))
+                regular = r'\d+\.\d+\.\d+'
+                match = re.search(regular, item)
+                if match:
+                    item = item.replace('.',' ')
+
+                items = item.split()
+                if items:
+                    if len(items) == 3:
+                        header_data.longitude = float(items[0]) + (float(items[1]) / 60) + (float(items[2]) / 3600)
+                    if len(items) == 2:
+                        header_data.longitude = float(items[0]) + (float(items[1]) / 60)
+                    if len(items) == 1:
+                        header_data.longitude = float(items[0])
 
             regular = r'(?<=battery\stype\s=\s).+'
             match = re.search(regular, file)
@@ -202,14 +229,15 @@ class CnvParser:
             if match:
                 regular = r'\w+\s\d+\s\d+\s\d+:\d+:\d+'
                 match = re.search(regular, match[0])
-                header_data.start_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
+                if match:
+                    header_data.start_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
 
             regular = r'(?<=bad_flag\s=\s).+'
             match = re.search(regular, file)
             if match:
                 header_data.bad_flag = float(match[0])
 
-            # XML parser, НЕ РАБОТАЕТ
+            # XML parser, НЕ РАБОТАЕТ!!!
             """
             regular = r'\<.+\>'
             match = re.findall(regular, self.data)
@@ -230,7 +258,19 @@ class CnvParser:
             regular = r'(?<=datcnv_in\s=\s).+'
             match = re.search(regular, file)
             if match:
-                header_data.hex_file, header_data.conf_file = match[0].split()
+                regular = r'.+\.hex'
+                match = re.search(regular, match[0])
+                if match:
+                    header_data.hex_file = match[0]
+
+                # НЕ РАБОТАЕТ!!!
+                """
+                regular = r'.+\.con'
+                match = re.search(regular, file)
+                if match:
+                    print(match[0])
+                    header_data.conf_file = match[0].split()
+                """
 
             self.list_header_data.append(header_data)
 
