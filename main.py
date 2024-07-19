@@ -5,14 +5,14 @@ from tmd_searcher_in_file_cnv import TmdSearch
 from searcher_files import SearchFiles
 
 if __name__ == '__main__':
-    searcher_files = SearchFiles('CTD_Data', '.CNV')
+    searcher_files = SearchFiles('CTD_Data\\2019', '.CNV')
     found_files = searcher_files.search()
 
     cnv_files = CnvParser(found_files)
     conf_files = ConfParser('config\\s80_230321v0134_O2OtObs!.con')
 
     cnv_header_data = cnv_files.header_parse()
-    cnv_body_data = cnv_files.body_parse()
+    cnv_body_data = cnv_files.body_parse(cnv_header_data)
 
     conf_data = conf_files.conf_parse()
 

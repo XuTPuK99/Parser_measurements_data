@@ -7,7 +7,7 @@ from pydantic import BaseModel
 class HeaderData(BaseModel):
     name_file_cnv: Optional[str] = None
     file_name: Optional[str] = None
-    software_version: Optional[float] = None
+    software_version: Optional[str] = None
     temperature_sn: Optional[int] = None
     conductivity_sn: Optional[int] = None
     cruise: Optional[str] = None
@@ -61,7 +61,7 @@ class CnvParser:
             header_data = HeaderData()
 
             header_data.name_file_cnv = self.names_files_cnv[number]
-            print(header_data.name_file_cnv)
+            print(header_data.name_file_cnv, 'HeaderData')
 
             regular = r'(?<=\*\sFileName\s=\s).+'
             match = re.search(regular, file)
@@ -71,7 +71,7 @@ class CnvParser:
             regular = r'(?<=\*\sSoftware\sVersion\s).+'
             match = re.search(regular, file)
             if match:
-                header_data.software_version = float(match[0])
+                header_data.software_version = str(match[0])
 
             regular = r'(?<=\*\sTemperature\sSN\s=\s).+'
             match = re.search(regular, file)
@@ -115,8 +115,14 @@ class CnvParser:
                 item = (match[0].replace(',', '.').replace('N', ' ')
                         .replace('..', ' ').replace("'", " ")
                         .replace("''", " ").replace('"', ' ')
-                        .replace('y', ' '))
+                        .replace('y', ' ').replace('_', ' ')
+                        .replace('/', ' ').replace('v', ' ')
+                        .replace('`', ''))
                 regular = r'\d+\.\d+\.\d+'
+                match = re.search(regular, item)
+                if match:
+                    item = item.replace('.', ' ')
+                regular = r'\d+\s\.\d+\.\d+'
                 match = re.search(regular, item)
                 if match:
                     item = item.replace('.', ' ')
@@ -136,11 +142,17 @@ class CnvParser:
                 item = (match[0].replace(',', '.').replace('E', ' ')
                         .replace('..', ' ').replace("'", " ")
                         .replace("''", " ").replace('"', ' ')
-                        .replace('y', ''))
+                        .replace('y', '').replace('_', ' ')
+                        .replace('/', ' ').replace('v', ' ')
+                        .replace('`', ' '))
                 regular = r'\d+\.\d+\.\d+'
                 match = re.search(regular, item)
                 if match:
                     item = item.replace('.',' ')
+                regular = r'\d+\s\.\d+\.\d+'
+                match = re.search(regular, item)
+                if match:
+                    item = item.replace('.', ' ')
 
                 items = item.split()
                 if items:
@@ -276,19 +288,22 @@ class CnvParser:
 
         return self.list_header_data
 
-    def body_parse(self) -> List[BodyData]:
-        for file in self.files_data:
+    def body_parse(self, name) -> List[BodyData]:
+        for number, file in enumerate(self.files_data):
             body_data = BodyData()
+            print(name[number].name_file_cnv, 'BodyData')
 
             # Table parser
-            regular = r'(?<=\*END\*\n).+'
+            regular = r'(?<=\*END\*).+'
             match = re.search(regular, file, flags=re.DOTALL)
-            table_row = match[0].split('\n')
-            for row in table_row:
-                regular = r'\S+'
-                match = re.findall(regular, row)
-                if match:
-                    body_data.table_data.append([float(item) for item in match])
+
+            if match:
+                table_row = match[0].split('\n')
+                for row in table_row:
+                    regular = r'\S+'
+                    match = re.findall(regular, row)
+                    if match:
+                        body_data.table_data.append([float(item) for item in match])
 
             self.list_body_data.append(body_data)
 

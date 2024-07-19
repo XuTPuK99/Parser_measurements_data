@@ -15,6 +15,7 @@ class TmdSearch:
         result = pd.DataFrame(columns=['Path', 'Count_True', 'Count_Total'])
 
         for number, dataframe in enumerate(self.list_pd_cnv_data):
+            print(self.cnv_header_data[number].name_file_cnv, 'search')
 
             k = -0.00000007610308758
             x = dataframe.iloc[:, 0] ** (2 - 0.0019619296) * dataframe.iloc[:, 0]
