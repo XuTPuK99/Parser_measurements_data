@@ -5,7 +5,7 @@ from tmd_searcher_in_file_cnv import TmdSearch
 from searcher_files import SearchFiles
 
 if __name__ == '__main__':
-    searcher_files = SearchFiles('CTD_Data\\2019', '.CNV')
+    searcher_files = SearchFiles('CTD_Data\\2024', '.CNV')
     found_files = searcher_files.search()
 
     cnv_files = CnvParser(found_files)

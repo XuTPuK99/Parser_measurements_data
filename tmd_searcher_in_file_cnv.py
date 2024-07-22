@@ -6,7 +6,11 @@ class TmdSearch:
         self.cnv_header_data = cnv_header_data
 
         self.list_pd_cnv_data = []
+
         for number in range(len(cnv_header_data)):
+            print(self.cnv_header_data[number].name_file_cnv, 'Search')
+            #print('count name_list:', len(cnv_header_data[number].name_list))
+            #print('count column:', len(cnv_body_data[number].table_data[0]))
             self.pd_cnv_data = pd.DataFrame(columns=cnv_header_data[number].name_list,
                                             data=cnv_body_data[number].table_data)
             self.list_pd_cnv_data.append(self.pd_cnv_data)
@@ -15,7 +19,6 @@ class TmdSearch:
         result = pd.DataFrame(columns=['Path', 'Count_True', 'Count_Total'])
 
         for number, dataframe in enumerate(self.list_pd_cnv_data):
-            print(self.cnv_header_data[number].name_file_cnv, 'search')
 
             k = -0.00000007610308758
             x = dataframe.iloc[:, 0] ** (2 - 0.0019619296) * dataframe.iloc[:, 0]
