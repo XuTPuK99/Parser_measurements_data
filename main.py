@@ -5,7 +5,7 @@ from tmd_searcher_in_file_cnv import TmdSearch
 from searcher_files import SearchFiles
 
 if __name__ == '__main__':
-    searcher_files = SearchFiles('CTD_Data\\2024', '.CNV')
+    searcher_files = SearchFiles('CTD_Data', '.CNV')
     found_files = searcher_files.search()
 
     cnv_files = CnvParser(found_files)
@@ -18,7 +18,12 @@ if __name__ == '__main__':
 
     tmd_search = TmdSearch(cnv_header_data, cnv_body_data)
 
-    WriteToFile.write_to_file_tmd_result(tmd_search.search(), 'result_tmd_search\\', 'result.txt')
+    result_search = tmd_search.search()
+
+
+    WriteToFile.write_to_file_tmd_result(result_search['result_file'], 'result_tmd_search\\', 'result_2022.csv')
+    #WriteToFile.write_to_file_tmd_result(result_search['result_data'], 'result_tmd_search\\',
+    #                                     'row_data_result_2022.csv')
 
     #WriteToFile.export_to_json_cnv(cnv_body_data, 'result\\', 'result')
     #WriteToFile.export_to_json_conf(conf_data, 'result\\', 'result')

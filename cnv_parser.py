@@ -249,24 +249,6 @@ class CnvParser:
             if match:
                 header_data.bad_flag = float(match[0])
 
-            # XML parser, НЕ РАБОТАЕТ!!!
-            """
-            regular = r'\<.+\>'
-            match = re.findall(regular, self.data)
-            string_data: str = str()
-            if match:
-                for data in match:
-                    string_data = string_data + data
-                regular = r'<Sensors count="\d"\s>'
-                match = re.search(regular, string_data)
-                self.xml_data.sensors_count = match[0]
-    
-                regular = r'<sensor\sChannel="\d"\s>.+?</sensor>'
-                match = re.findall(regular, string_data)
-                for i in match:
-                    print(i)
-            """
-
             regular = r'(?<=datcnv_in\s=\s).+'
             match = re.search(regular, file)
             if match:
