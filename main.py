@@ -2,26 +2,29 @@ from cnv_parser import CnvParser
 from conf_parser import ConfParser
 from writer_files import WriteToFile
 from tmd_searcher_in_file_cnv import TmdSearch
-from searcher_files import SearchFiles
+from file_tools import FileTools
 
 if __name__ == '__main__':
-    searcher_files = SearchFiles('CTD_Data', '.CNV')
-    found_files = searcher_files.search()
+    file_tools = FileTools()
+    found_files = file_tools.search('CTD_Data')
+    #'CTD_Data\\2023\\07_Ver\\sbe25\\cnvdata\\du\\test'
 
-    cnv_files = CnvParser(found_files)
-    conf_files = ConfParser('config\\s80_230321v0134_O2OtObs!.con')
+    #conf_parser = ConfParser('config\\s80_230321v0134_O2OtObs!.con')
 
-    cnv_header_data = cnv_files.header_parse()
-    cnv_body_data = cnv_files.body_parse(cnv_header_data)
+    for file in found_files:
+        print(file)
+        data = file_tools.open_files(file)
 
-    conf_data = conf_files.conf_parse()
+        cnv_header_data, cnv_body_data = CnvParser.parse(data)
+        cnv_header_data.name_file_cnv = file
 
-    tmd_search = TmdSearch(cnv_header_data, cnv_body_data)
+        #conf_data = conf_parser.conf_parse()
+        result_search = TmdSearch.search(cnv_header_data, cnv_body_data)
 
-    result_search = tmd_search.search()
+        WriteToFile.write_to_file_tmd_result(result_search, 'result_tmd_search\\', 'result_2022.csv')
 
 
-    WriteToFile.write_to_file_tmd_result(result_search['result_file'], 'result_tmd_search\\', 'result_2022.csv')
+
     #WriteToFile.write_to_file_tmd_result(result_search['result_data'], 'result_tmd_search\\',
     #                                     'row_data_result_2022.csv')
 

@@ -285,7 +285,7 @@ class PressureSensorBuilder(SensorBuilder):
             C4=float(split_string_2[3]) if split_string_2 else None,
             D1=float(split_string_3[0]) if split_string_3 else None,
             D2=float(split_string_3[1]) if split_string_3 else None,
-            slope=float(split_string_3[2])  if split_string_3 else None,
+            slope=float(split_string_3[2]) if split_string_3 else None,
             offset=float(split_string_3[3]) if split_string_3 else None,
             sensor_type=float(split_string_3[4]) if split_string_3 else None,
             AD590_M=float(split_string_3[5]) if split_string_3 else None,
