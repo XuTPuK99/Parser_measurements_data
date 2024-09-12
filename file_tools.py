@@ -4,27 +4,17 @@ import os
 
 class FileTools:
     @staticmethod
-    def search(path_to_direction):
+    def search_files(path_to_direction):
         result = []
 
         for root, dirs, files in os.walk(path_to_direction):
-            regular = r'.+(C?c?nv).+'
-            match = re.search(regular, root)
+            regular = r'.+(cnv).+'
+            match = re.search(regular, root, flags=re.I)
             if match:
                 files = os.listdir(match[0])
                 for file in files:
-                    regular = r'.+\.(cnv)?(CNV)?'
-                    match = re.search(regular, file)
-                    if match:
-                        result.append(f'{root}\\{file}')
-
-            regular = r'.+(CNV).+'
-            match = re.search(regular, root)
-            if match:
-                files = os.listdir(match[0])
-                for file in files:
-                    regular = r'.+\.(cnv)?(CNV)?'
-                    match = re.search(regular, file)
+                    regular = r'.+\.cnv'
+                    match = re.search(regular, file, flags=re.I)
                     if match:
                         result.append(f'{root}\\{file}')
 

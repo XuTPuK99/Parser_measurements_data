@@ -462,14 +462,16 @@ class ConfData(BaseModel):
 
 
 class ConfParser:
-    def __init__(self, file_config_path):
-        self.file_config_path: str = file_config_path
+    @staticmethod
+    def conf_parse(file_config_path):
+        file_config_path = file_config_path.split('\\')
+        if len(file_config_path) > 1:
+            file_config_path = file_config_path[len(file_config_path) - 1]
 
-    def conf_parse(self):
         fabric = FabricSensor()
         conf_data = ConfData()
 
-        with (open(self.file_config_path, 'r')) as file:
+        with (open(f'config\\{file_config_path}', 'r')) as file:
             config_file_data = file.read().splitlines()
 
         for i in range(len(config_file_data)):

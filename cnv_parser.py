@@ -1,7 +1,9 @@
 import re
 import datetime
 from typing import Optional, Union, List
-from pydantic import BaseModel
+
+import pandas as pd
+from pydantic import BaseModel, ConfigDict
 
 
 class HeaderData(BaseModel):
@@ -36,7 +38,8 @@ class HeaderData(BaseModel):
 
 
 class BodyData(BaseModel):
-    table_data: Optional[List[List[float]]] = []
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    table_data: Optional[pd.DataFrame] = []
 
 
 class CnvParser:
@@ -242,28 +245,29 @@ class CnvParser:
             header_data.bad_flag = float(match[0])
 
         regular = r'(?<=datcnv_in\s=\s).+'
-        match = re.search(regular, data)
-        if match:
+        datcnv_in_match = re.search(regular, data)
+        if datcnv_in_match:
             regular = r'.+\.hex'
-            match = re.search(regular, match[0])
+            match = re.search(regular, datcnv_in_match[0], flags=re.I)
             if match:
                 header_data.hex_file = match[0]
+            else:
+                regular = r'.+\.dat'
+                match = re.search(regular, datcnv_in_match[0], flags=re.I)
+                if match:
+                    header_data.hex_file = match[0]
 
-            # НЕ РАБОТАЕТ!!!
-            """
-            regular = r'.+\.con'
-            match = re.search(regular, file)
+            regular = r'\s(.+\.con)'
+            match = re.search(regular, datcnv_in_match[0], flags=re.I)
             if match:
-                print(match[0])
-                header_data.conf_file = match[0].split()
-            """
+                header_data.conf_file = match[1]
+
         return header_data
 
     @staticmethod
     def body_parse(data) -> BodyData:
         body_data = BodyData()
 
-        # Table parser
         regular = r'(?<=\*END\*).+'
         match = re.search(regular, data, flags=re.DOTALL)
         if match:
@@ -277,5 +281,6 @@ class CnvParser:
             values = re.split(regular, row)
 
             body_data.table_data.append([float(item) for item in values if len(item)])
+        body_data.table_data = pd.DataFrame(body_data.table_data)
 
         return body_data
