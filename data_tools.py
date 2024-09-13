@@ -4,16 +4,17 @@ import pandas as pd
 
 class DataTools:
     @staticmethod
-    def search_temperature_2m(dataframe):
-        target_value = int()
-        closest_depth_2m = 2
+    def search_temperature_in_depth(dataframe):
+        depth = 2
+        index_value = 0
+        minimal_difference = depth
         for number in range(dataframe.shape[0]):
-            value_at_depth = dataframe.iloc[number, 0]
-            closest_value = abs(2 - value_at_depth)
-            if closest_value < closest_depth_2m:
-                closest_depth_2m = float(closest_value)
-                target_value = number
-        result = dataframe.iloc[target_value, 2]
+            value = dataframe.iloc[number, 0]
+            difference = abs(depth - value)
+            if difference < minimal_difference:
+                minimal_difference = float(difference)
+                index_value = number
+        result = dataframe.iloc[index_value, 2]
         if result == np.nan:
             result = 'None'
         return result
@@ -51,13 +52,13 @@ class DataTools:
         latitude = cnv_header_data.latitude if cnv_header_data.latitude else 'None'
         longitude = cnv_header_data.longitude if cnv_header_data.longitude else 'None'
         max_depth = cnv_header_data.spans_list[0][1] if cnv_header_data.spans_list[0][1] else 'None'
-        temperature_2m = DataTools.search_temperature_2m(dataframe)
+        temperature_2m = DataTools.search_temperature_in_depth(dataframe)
         max_tmd_vs_temperature = DataTools.search_max_difference_tmd_temperature(dataframe)
         total_number = dataframe.shape[0]
         true_number = total_number - result_tdm.iloc[0]
 
         #depth = dataframe.iloc[:, 0].to_frame().T
-        depth = dataframe.iloc[:, 0]
+        #depth = dataframe.iloc[:, 0]
         #depth.to_csv(f'result_tmd_search\\depth.csv', sep='\t', mode='a', index=False)
         #print(depth)
 
@@ -68,10 +69,7 @@ class DataTools:
 
     @staticmethod
     def data_clipping(cnv_body_data):
-        count_begin = []
-        count_end = []
         data = pd.DataFrame(cnv_body_data.table_data).loc[:, 0]
-        #data = body_data.loc[:, 0]
 
         dive_begin_index = 0
         max_depth = 0
@@ -90,9 +88,6 @@ class DataTools:
                 max_depth = item
                 lift_begin_index = number
 
-        print(data.loc[range(dive_begin_index, lift_begin_index + 1)])
-
-        #data = data.loc[data_index[0]:]
-        #cnv_body_data.table_data = data.loc[: data_index[-1]]
+        cnv_body_data.table_data = cnv_body_data.table_data.loc[range(dive_begin_index, lift_begin_index + 1)]
 
         return cnv_body_data
