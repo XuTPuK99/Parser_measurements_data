@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -13,6 +14,8 @@ class DataTools:
                 closest_depth_2m = float(closest_value)
                 target_value = number
         result = dataframe.iloc[target_value, 2]
+        if result == np.nan:
+            result = 'None'
         return result
 
     @staticmethod
@@ -31,7 +34,8 @@ class DataTools:
                                             'Temperature(2m)', 'Max_difference_Tmd_Temperature',
                                             'Count_True', 'Count_Total'])
 
-        dataframe = pd.DataFrame(columns=cnv_header_data.name_list, data=cnv_body_data)
+        dataframe = cnv_body_data.table_data
+        dataframe.columns = cnv_header_data.name_list
 
         tmd = (-0.00000007610308758 * dataframe.iloc[:, 0] ** 2
                - 0.0019619296 * dataframe.iloc[:, 0] + 3.9667)
@@ -53,11 +57,12 @@ class DataTools:
         true_number = total_number - result_tdm.iloc[0]
 
         #depth = dataframe.iloc[:, 0].to_frame().T
+        depth = dataframe.iloc[:, 0]
         #depth.to_csv(f'result_tmd_search\\depth.csv', sep='\t', mode='a', index=False)
-        #print(type(depth))
+        #print(depth)
 
         result_file.loc[0] = [path, datetime, latitude, longitude, max_depth, temperature_2m,
-                              max_tmd_vs_temperature, total_number, true_number]
+                              max_tmd_vs_temperature, true_number, total_number]
 
         return result_file
 
@@ -65,32 +70,29 @@ class DataTools:
     def data_clipping(cnv_body_data):
         count_begin = []
         count_end = []
-        cnv_body_data = pd.DataFrame(cnv_body_data.table_data)
-        data = cnv_body_data.loc[:, 0]
+        data = pd.DataFrame(cnv_body_data.table_data).loc[:, 0]
+        #data = body_data.loc[:, 0]
 
-        for number_begin in range(len(data)):
-            if len(count_begin) > 0 and count_begin[-1] >= data.loc[number_begin]:
-                count_begin.clear()
+        dive_begin_index = 0
+        max_depth = 0
+        lift_begin_index = 0
+        changing_values_range = 4   # start 0 value
+        find_begin_dive = False
 
-            count_begin.append(float(data.loc[number_begin]))
+        for number, item in enumerate(data):
+            if not find_begin_dive and number != 0 and data.loc[number - 1] >= item:
+                dive_begin_index = number
 
-            if len(count_begin) >= 5:
-                data = data.loc[number_begin:]
-                index_max_depth = data.idxmax()
+            if (number - dive_begin_index) >= changing_values_range:
+                find_begin_dive = True
 
-                for number_end in range(index_max_depth, len(data)):
-                    if len(count_end) > 0 and count_end[-1] < data[number_end]:
-                        count_end.clear()
+            if item >= max_depth:
+                max_depth = item
+                lift_begin_index = number
 
-                    count_end.append(float(data[number_end]))
+        print(data.loc[range(dive_begin_index, lift_begin_index + 1)])
 
-                    if len(count_end) >= 5:
-                        data = data.loc[:number_end]
-                        break
-                break
+        #data = data.loc[data_index[0]:]
+        #cnv_body_data.table_data = data.loc[: data_index[-1]]
 
-        data_index = data.index
-        data = cnv_body_data.loc[data_index[0]:]
-        data = data.loc[: data_index[-1]]
-
-        return data
+        return cnv_body_data

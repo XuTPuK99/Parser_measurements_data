@@ -20,7 +20,7 @@ if __name__ == '__main__':
         # conf_data = ConfParser.conf_parse(cnv_header_data.conf_file) # path: config\\*.con
         result_search = DataTools.search(cnv_header_data, cnv_body_data)
 
-        WriteToFile.write_to_file_tmd_result(result_search, 'result_tmd_search\\', 'result_2022.csv')
+        WriteToFile.write_to_file_tmd_result(result_search, 'result_tmd_search\\', 'result.csv')
 
     #WriteToFile.write_to_file_tmd_result(result_search['result_data'], 'result_tmd_search\\',
     #                                     'row_data_result_2022.csv')
