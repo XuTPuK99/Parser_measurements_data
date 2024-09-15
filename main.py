@@ -10,12 +10,10 @@ if __name__ == '__main__':
     start = time.time()
 
     file_tools = FileTools()
-    found_files = file_tools.search_files('CTD_Data')  # 'CTD_Data\\test_cnvdata'
+    found_files = file_tools.search_files('CTD_Data')  # 'test_cnvdata'
 
     for file in found_files:
         start_cycle = time.time()
-
-        print(file)
 
         data = file_tools.open_files(file)
 
@@ -23,6 +21,7 @@ if __name__ == '__main__':
         cnv_header_data.name_file_cnv = file
 
         cnv_body_data = DataTools.data_clipping(cnv_body_data)
+        #cnv_body_data.table_data.to_csv(f'result_tmd_search\\depth.csv', sep='\t', index=False)
         if cnv_body_data.table_data.empty is True:
             continue
 
@@ -33,7 +32,7 @@ if __name__ == '__main__':
 
         end_cycle = time.time() - start_cycle
 
-        print('Cycle running time:', end_cycle)
+        print(file, 'Cycle running time:', end_cycle)
 
     end = time.time() - start
 

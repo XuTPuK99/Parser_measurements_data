@@ -57,10 +57,12 @@ class DataTools:
         total_number = dataframe.shape[0]
         true_number = total_number - result_tdm.iloc[0]
 
-        #depth = dataframe.iloc[:, 0].to_frame().T
-        #depth = dataframe.iloc[:, 0]
-        #depth.to_csv(f'result_tmd_search\\depth.csv', sep='\t', mode='a', index=False)
-        #print(depth)
+        depth = dataframe.iloc[:, 0].to_frame().T
+        depth.insert(0, '0', cnv_header_data.name_file_cnv)
+        temperature = dataframe.iloc[:, 2].to_frame().T
+        temperature.insert(0, '0', cnv_header_data.name_file_cnv)
+        depth.to_csv(f'result_tmd_search\\data.csv', sep='\t', header=False, mode='a', index=False)
+        temperature.to_csv(f'result_tmd_search\\data.csv', sep='\t', header=False, mode='a', index=False)
 
         result_file.loc[0] = [path, datetime, latitude, longitude, max_depth, temperature_2m,
                               max_tmd_vs_temperature, true_number, total_number]
@@ -84,7 +86,7 @@ class DataTools:
             if (number - dive_begin_index) >= changing_values_range:
                 find_begin_dive = True
 
-            if item >= max_depth:
+            if item > max_depth:
                 max_depth = item
                 lift_begin_index = number
 
