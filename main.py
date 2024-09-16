@@ -21,7 +21,6 @@ if __name__ == '__main__':
         cnv_header_data.name_file_cnv = file
 
         cnv_body_data = DataTools.data_clipping(cnv_body_data)
-        #cnv_body_data.table_data.to_csv(f'result_tmd_search\\depth.csv', sep='\t', index=False)
         if cnv_body_data.table_data.empty is True:
             continue
 
@@ -40,6 +39,4 @@ if __name__ == '__main__':
 
     # WriteToFile.write_to_file_tmd_result(result_search['result_data'], 'result_tmd_search\\',
     #                                     'row_data_result_2022.csv')
-
-    # WriteToFile.export_to_json_cnv(cnv_body_data, 'result\\', 'result')
-    # WriteToFile.export_to_json_conf(conf_data, 'result\\', 'result')
+    # WriteToFile.export_to_json_conf(conf_data, 'result\\', 'result_conf')
