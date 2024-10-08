@@ -1,77 +1,33 @@
-import numpy as np
+import re
 import pandas as pd
+
+
+# Данный модуль отвечает за Tmd анализ cnv файла
 
 
 class DataTools:
     @staticmethod
-    def search_temperature_in_depth(dataframe):
-        depth = 2
-        index_value = 0
-        minimal_difference = depth
-        for number in range(dataframe.shape[0]):
-            value = dataframe.iloc[number, 0]
-            difference = abs(depth - value)
-            if difference < minimal_difference:
-                minimal_difference = float(difference)
-                index_value = number
-        result = dataframe.iloc[index_value, 2]
-        if result == np.nan:
-            result = 'None'
-        return result
+    def search_temperature_in_depth(dataframe, temperature_deg_c_index_column):
+        # Данная функция принимает pandas.Dataframe и находит в нём
+        dataframe.reset_index()
+        tempreture = dataframe.iloc[0, temperature_deg_c_index_column]
+        return tempreture
 
     @staticmethod
-    def search_max_difference_tmd_temperature(dataframe):
+    def search_max_difference_tmd_temperature(dataframe, temperature_deg_c_index_column):
         data = dataframe.loc[dataframe['Temperature < Tmd']]
         if data.empty:
             result = 'None'
             return result
-        result = data['Tmd'] - abs(data.iloc[:, 2])
+        result = data['Tmd'] - abs(data.iloc[:, temperature_deg_c_index_column])
         result = result.max()
         return result
 
     @staticmethod
-    def search(cnv_header_data, cnv_body_data):  # придумать названия функции
-        result_file = pd.DataFrame(columns=['Path', 'DateTime', 'Latitude', 'Longitude', 'Max_Depth',
-                                            'Temperature(2m)', 'Max_difference_Tmd_Temperature',
-                                            'Count_True', 'Count_Total'])
-
-        dataframe = cnv_body_data.table_data
-        dataframe.columns = cnv_header_data.name_list
-
-        tmd = (-0.00000007610308758 * dataframe.iloc[:, 0] ** 2
-               - 0.0019619296 * dataframe.iloc[:, 0] + 3.9667)
-
-        second_column = dataframe.columns.size
-        dataframe.insert(loc=second_column, column='Tmd', value=tmd)
-        dataframe.insert(loc=second_column + 1, column='Temperature < Tmd',
-                         value=dataframe.iloc[:, 2] < dataframe.iloc[:, second_column])
-        result_tdm = dataframe['Temperature < Tmd'].value_counts()  # return True or False
-
-        path = cnv_header_data.name_file_cnv
-        datetime = cnv_header_data.start_time if cnv_header_data.start_time else 'None'
-        latitude = cnv_header_data.latitude if cnv_header_data.latitude else 'None'
-        longitude = cnv_header_data.longitude if cnv_header_data.longitude else 'None'
-        max_depth = cnv_header_data.spans_list[0][1] if cnv_header_data.spans_list[0][1] else 'None'
-        temperature_2m = DataTools.search_temperature_in_depth(dataframe)
-        max_tmd_vs_temperature = DataTools.search_max_difference_tmd_temperature(dataframe)
-        total_number = dataframe.shape[0]
-        true_number = total_number - result_tdm.iloc[0]
-
-        depth = dataframe.iloc[:, 0].to_frame().T
-        depth.insert(0, '0', cnv_header_data.name_file_cnv)
-        temperature = dataframe.iloc[:, 2].to_frame().T
-        temperature.insert(0, '0', cnv_header_data.name_file_cnv)
-        depth.to_csv(f'result_tmd_search\\data.csv', sep='\t', header=False, mode='a', index=False)
-        temperature.to_csv(f'result_tmd_search\\data.csv', sep='\t', header=False, mode='a', index=False)
-
-        result_file.loc[0] = [path, datetime, latitude, longitude, max_depth, temperature_2m,
-                              max_tmd_vs_temperature, true_number, total_number]
-
-        return result_file
-
-    @staticmethod
     def data_clipping(cnv_body_data):
         data = pd.DataFrame(cnv_body_data.table_data).loc[:, 0]
+
+        index_list = []
 
         dive_begin_index = 0
         max_depth = 0
@@ -90,6 +46,100 @@ class DataTools:
                 max_depth = item
                 lift_begin_index = number
 
+        index_list.append(dive_begin_index)
+        index_list.append(lift_begin_index)
+
         cnv_body_data.table_data = cnv_body_data.table_data.loc[range(dive_begin_index, lift_begin_index + 1)]
 
-        return cnv_body_data
+        return cnv_body_data, index_list
+
+    @staticmethod
+    def log_error_flag_data(dataframe, depfm_index_column, temperature_deg_c_index_column):
+        error = str()
+
+        depth = dataframe.iloc[:, depfm_index_column]
+        depth = depth.max()
+        if depth > 1650:
+            error = error + 'depth'
+        tempreture = dataframe.iloc[:, temperature_deg_c_index_column]
+        tempreture = tempreture.max()
+        if tempreture >= 30:
+            error = error + 'temperature'
+        if error == str():
+            error = 'not error'
+
+        return error
+
+    @staticmethod
+    def tmd_analysis(cnv_header_data, cnv_body_data, index_list):  # придумать названия функции
+        result_file = pd.DataFrame(columns=['Path', 'SBE_version', 'Start_Time', 'System_Upload_Date', 'Latitude',
+                                            'Row_Latitude', 'Longitude', 'Row_Longitude',
+                                            'Station', 'Max_Depth', 'Surface_temperature',
+                                            'Max_difference_Tmd_Temperature', 'Unit_Temperature',
+                                            'Count_True', 'Count_Total', 'Dive_Begin_Index',
+                                            'Dive_End_Index', 'Error'])
+
+        dataframe = cnv_body_data.table_data
+        dataframe.columns = cnv_header_data.name_list
+
+        depfm_index_column = int()
+        temperature_deg_c_index_column = int()
+        name_temperature_deg_c_index_column = str()
+
+        for number, name_column in enumerate(cnv_header_data.name_list):
+            regular = r'depFM:.+'
+            match = re.search(regular, name_column)
+            if match:
+                depfm_index_column = number
+            regular = r'.+(deg\sC).+'
+            match = re.search(regular, name_column)
+            if match:
+                temperature_deg_c_index_column = number
+                name_temperature_deg_c_index_column = match[0]
+
+        tmd = (- 0.00000007610308758 * dataframe.iloc[:, depfm_index_column] ** 2
+               - 0.0019619296 * dataframe.iloc[:, depfm_index_column] + 3.9646054)
+
+        second_column = dataframe.columns.size
+        dataframe.insert(loc=second_column, column='Tmd', value=tmd)
+        dataframe.insert(loc=second_column + 1, column='Temperature < Tmd',
+                         value=dataframe.iloc[:, temperature_deg_c_index_column] < dataframe.iloc[:, second_column])
+        result_tdm = dataframe['Temperature < Tmd'].value_counts()  # return True or False
+
+        # save Dataframe (development instrument)
+        # dataframe.to_csv('result_tmd_search\\dataframe.csv', sep='\t', index=False)
+        # print(dataframe)
+
+        path = cnv_header_data.name_file_cnv
+        sbe_version = cnv_header_data.sbe_version
+        start_time = cnv_header_data.start_time if cnv_header_data.start_time else 'None'
+        system_upload_date= cnv_header_data.system_upload_time if cnv_header_data.system_upload_time else 'None'
+        latitude = cnv_header_data.latitude if cnv_header_data.latitude else 'None'
+        row_latitude = cnv_header_data.row_latitude if cnv_header_data.latitude else 'None'
+        longitude = cnv_header_data.longitude if cnv_header_data.longitude else 'None'
+        row_longitude = cnv_header_data.row_longitude if cnv_header_data.longitude else 'None'
+        station = cnv_header_data.station if cnv_header_data.station else 'None'
+        max_depth = cnv_header_data.spans_list[0][1] if cnv_header_data.spans_list[0][1] else 'None'
+        surface_temperature = DataTools.search_temperature_in_depth(dataframe, temperature_deg_c_index_column)
+        max_tmd_vs_temperature = DataTools.search_max_difference_tmd_temperature(dataframe,
+                                                                                 temperature_deg_c_index_column)
+        total_number = dataframe.shape[0]
+        true_number = total_number - result_tdm.iloc[0]
+        dive_begin_index = index_list[0]
+        lift_begin_index = index_list[1]
+        error = DataTools.log_error_flag_data(dataframe, depfm_index_column, temperature_deg_c_index_column)
+        name_temperature_deg_c_index_column = name_temperature_deg_c_index_column
+
+        depth = dataframe.iloc[:, depfm_index_column].to_frame().T
+        depth.insert(0, '0', cnv_header_data.name_file_cnv)
+        temperature = dataframe.iloc[:, temperature_deg_c_index_column].to_frame().T
+        temperature.insert(0, '0', cnv_header_data.name_file_cnv)
+        depth.to_csv(f'result_tmd_search\\data.csv', sep='\t', header=False, mode='a', index=False)
+        temperature.to_csv(f'result_tmd_search\\data.csv', sep='\t', header=False, mode='a', index=False)
+
+        result_file.loc[0] = [path, sbe_version, start_time, system_upload_date, latitude, row_latitude, longitude,
+                              row_longitude, station, max_depth, surface_temperature, max_tmd_vs_temperature,
+                              name_temperature_deg_c_index_column, true_number, total_number, dive_begin_index,
+                              lift_begin_index, error]
+
+        return result_file

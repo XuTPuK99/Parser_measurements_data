@@ -8,15 +8,19 @@ from pydantic import BaseModel, ConfigDict
 
 class HeaderData(BaseModel):
     name_file_cnv: Optional[str] = None
+    sbe_version: Optional[str] = None
     file_name: Optional[str] = None
     software_version: Optional[str] = None
     temperature_sn: Optional[int] = None
     conductivity_sn: Optional[int] = None
+    system_upload_time: Optional[datetime.datetime] = None
     cruise: Optional[str] = None
     vessel_or_ship: Optional[str] = None
     station: Optional[str] = None
     latitude: Optional[float] = None
+    row_latitude: Optional[str] = None
     longitude: Optional[float] = None
+    row_longitude: Optional[str] = None
     battery_type: Optional[str] = None
     stored_voltage: Optional[List[str]] = []
     cast: Optional[int] = None
@@ -58,6 +62,11 @@ class CnvParser:
     def header_parse(data) -> HeaderData:
         header_data = HeaderData()
 
+        regular = r'(?<=\*\sSea-Bird\s)SBE\s?\d+'
+        match = re.search(regular, data)
+        if match:
+            header_data.sbe_version = match[0]
+
         regular = r'(?<=\*\sFileName\s=\s).+'
         match = re.search(regular, data)
         if match:
@@ -77,6 +86,14 @@ class CnvParser:
         match = re.search(regular, data)
         if match:
             header_data.conductivity_sn = int(match[0])
+
+        regular = r'(?<=\*\sSystem\sUpLoad\sTime\s=\s).+'
+        match = re.search(regular, data)
+        if match:
+            regular = r'\w+\s\d+\s\d+\s\d+:\d+:\d+'
+            match = re.search(regular, match[0])
+            if match:
+                header_data.system_upload_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
 
         regular = r'(?<=Cruise:).+'
         match = re.search(regular, data)
@@ -107,6 +124,7 @@ class CnvParser:
         regular = r'(?<=Latitude:).+'
         match = re.search(regular, data)
         if match:
+            header_data.row_latitude = match[0]
             item = (match[0].replace(',', '.').replace('N', ' ')
                     .replace('..', ' ').replace("'", " ")
                     .replace("''", " ").replace('"', ' ')
@@ -134,6 +152,7 @@ class CnvParser:
         regular = r'(?<=Longitude:).+'
         match = re.search(regular, data)
         if match:
+            header_data.row_longitude = match[0]
             item = (match[0].replace(',', '.').replace('E', ' ')
                     .replace('..', ' ').replace("'", " ")
                     .replace("''", " ").replace('"', ' ')

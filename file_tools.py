@@ -1,10 +1,14 @@
 import re
 import os
 
+# В данном модуле записаные функции для работы с файлами
+
 
 class FileTools:
     @staticmethod
     def search_files(path_to_direction):
+        # Функция ищет все директории в указананой папке с cnv в названии
+        # и возвращает список этих файлов
         result = []
 
         for root, dirs, files in os.walk(path_to_direction):
@@ -21,7 +25,8 @@ class FileTools:
         return result
 
     @staticmethod
-    def open_files(path_file):
+    def open_file(path_file):
+        # Функция считывает данные из файла и возвращает их в виде str()
         with (open(path_file, 'r') as file):
             file_data = file.read()
 

@@ -10,24 +10,31 @@ if __name__ == '__main__':
     start = time.time()
 
     file_tools = FileTools()
-    found_files = file_tools.search_files('CTD_Data')  # 'test_cnvdata'
+    found_files = file_tools.search_files('ctddata')  # 'ctddata' or 'CTD Data' or 'test_cnv_data\\cnv'
 
     for file in found_files:
         start_cycle = time.time()
 
-        data = file_tools.open_files(file)
+        data = file_tools.open_file(file)
 
-        cnv_header_data, cnv_body_data = CnvParser.parse(data)
-        cnv_header_data.name_file_cnv = file
+        try:
+            cnv_header_data, cnv_body_data = CnvParser.parse(data)
+            cnv_header_data.name_file_cnv = file
 
-        cnv_body_data = DataTools.data_clipping(cnv_body_data)
-        if cnv_body_data.table_data.empty is True:
+            cnv_body_data, index_list = DataTools.data_clipping(cnv_body_data)
+
+            if cnv_body_data.table_data.empty is True:
+                continue
+
+            # conf_data = ConfParser.conf_parse(cnv_header_data.conf_file) # path: config\\*.con
+            result_search = DataTools.tmd_analysis(cnv_header_data, cnv_body_data, index_list)
+
+            # WriteToFile.export_to_json_conf(conf_data, 'result\\', 'result_conf') #
+            WriteToFile.write_to_file_tmd_result(result_search, 'result_tmd_search\\', 'result.csv')
+
+        except Exception:
+            print("Error file:", file)
             continue
-
-        # conf_data = ConfParser.conf_parse(cnv_header_data.conf_file) # path: config\\*.con
-        result_search = DataTools.search(cnv_header_data, cnv_body_data)
-
-        WriteToFile.write_to_file_tmd_result(result_search, 'result_tmd_search\\', 'result.csv')
 
         end_cycle = time.time() - start_cycle
 
@@ -36,7 +43,3 @@ if __name__ == '__main__':
     end = time.time() - start
 
     print('Program running time:', end)
-
-    # WriteToFile.write_to_file_tmd_result(result_search['result_data'], 'result_tmd_search\\',
-    #                                     'row_data_result_2022.csv')
-    # WriteToFile.export_to_json_conf(conf_data, 'result\\', 'result_conf')
