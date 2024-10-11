@@ -10,7 +10,8 @@ if __name__ == '__main__':
     start = time.time()
 
     file_tools = FileTools()
-    found_files = file_tools.search_files('ctddata')  # 'ctddata' or 'CTD Data' or 'test_cnv_data\\cnv'
+    found_files = file_tools.search_files('CTD_Data\\2000')  # 'ctddata' or 'CTD Data' or
+    # 'test_cnv_data\\cnv'
 
     for file in found_files:
         start_cycle = time.time()
@@ -18,7 +19,7 @@ if __name__ == '__main__':
         data = file_tools.open_file(file)
 
         try:
-            cnv_header_data, cnv_body_data = CnvParser.parse(data)
+            cnv_header_data, cnv_body_data = CnvParser.parse(file, data)
             cnv_header_data.name_file_cnv = file
 
             cnv_body_data, index_list = DataTools.data_clipping(cnv_body_data)
@@ -32,8 +33,8 @@ if __name__ == '__main__':
             # WriteToFile.export_to_json_conf(conf_data, 'result\\', 'result_conf') #
             WriteToFile.write_to_file_tmd_result(result_search, 'result_tmd_search\\', 'result.csv')
 
-        except Exception:
-            print("Error file:", file)
+        except Exception as e:
+            print(f'Error file: {file}; {type(e)}, {e}')
             continue
 
         end_cycle = time.time() - start_cycle

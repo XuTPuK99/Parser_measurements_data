@@ -7,13 +7,16 @@ from pydantic import BaseModel, ConfigDict
 
 
 class HeaderData(BaseModel):
+    full_path_file: Optional[str] = None
     name_file_cnv: Optional[str] = None
+    station_name_file_cnv: Optional[str] = None
+    date_name_file_cnv: Optional[str] = None
     sbe_version: Optional[str] = None
     file_name: Optional[str] = None
     software_version: Optional[str] = None
     temperature_sn: Optional[int] = None
     conductivity_sn: Optional[int] = None
-    system_upload_time: Optional[datetime.datetime] = None
+    system_upload_time: Union[datetime.datetime, str] = None
     cruise: Optional[str] = None
     vessel_or_ship: Optional[str] = None
     station: Optional[str] = None
@@ -48,19 +51,21 @@ class BodyData(BaseModel):
 
 class CnvParser:
     @staticmethod
-    def parse(data):
+    def parse(file_name, data):
         regular = r'(.+)\*END\*\s*(.+)'
         match = re.search(regular, data, flags=re.DOTALL)
         header_text = match[1] if match else data
         body_text = match[2] if match else data
 
-        header_data = CnvParser.header_parse(header_text)
+        header_data = CnvParser.header_parse(file_name, header_text)
         body_data = CnvParser.body_parse(body_text)
         return header_data, body_data
 
     @staticmethod
-    def header_parse(data) -> HeaderData:
+    def header_parse(file_name, data) -> HeaderData:
         header_data = HeaderData()
+
+        header_data.full_path_file = file_name
 
         regular = r'(?<=\*\sSea-Bird\s)SBE\s?\d+'
         match = re.search(regular, data)
@@ -71,6 +76,23 @@ class CnvParser:
         match = re.search(regular, data)
         if match:
             header_data.file_name = match[0]
+
+        regular = r'\\cnvdata(\\du)?\\(\d?\.?\d?[a-zA-Z]+)'
+        match = re.search(regular, header_data.full_path_file, flags=re.I)
+        if match:
+            header_data.station_name_file_cnv = match[2]
+
+        regular = r'(\d+)\.CNV'
+        match = re.search(regular, header_data.full_path_file, flags=re.I)
+        if match:
+            regular = r'\d*(\d{2})(\d{2})'
+            match = re.search(regular, match[1], flags=re.I)
+            if match:
+                header_data.date_name_file_cnv = f'{match[2]}.{match[1]}'
+            regular = r'\\(\d{4})\\'
+            match = re.search(regular, header_data.full_path_file, flags=re.I)
+            if match:
+                header_data.date_name_file_cnv = f'{header_data.date_name_file_cnv}.{match[1]}'
 
         regular = r'(?<=\*\sSoftware\sVersion\s).+'
         match = re.search(regular, data)
@@ -93,7 +115,10 @@ class CnvParser:
             regular = r'\w+\s\d+\s\d+\s\d+:\d+:\d+'
             match = re.search(regular, match[0])
             if match:
-                header_data.system_upload_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
+                try:
+                    header_data.system_upload_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
+                except ValueError as e:
+                    header_data.system_upload_time = match[0]
 
         regular = r'(?<=Cruise:).+'
         match = re.search(regular, data)
@@ -256,7 +281,11 @@ class CnvParser:
             regular = r'\w+\s\d+\s\d+\s\d+:\d+:\d+'
             match = re.search(regular, match[0])
             if match:
-                header_data.start_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
+                try:
+                    header_data.start_time = datetime.datetime.strptime(match[0], '%b %d %Y %X')
+                except ValueError as e:
+                    header_data.system_upload_time = match[0]
+
 
         regular = r'(?<=bad_flag\s=\s).+'
         match = re.search(regular, data)

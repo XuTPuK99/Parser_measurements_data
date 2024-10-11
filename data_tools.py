@@ -72,10 +72,10 @@ class DataTools:
 
     @staticmethod
     def tmd_analysis(cnv_header_data, cnv_body_data, index_list):  # придумать названия функции
-        result_file = pd.DataFrame(columns=['Path', 'SBE_version', 'Start_Time', 'System_Upload_Date', 'Latitude',
-                                            'Row_Latitude', 'Longitude', 'Row_Longitude',
-                                            'Station', 'Max_Depth', 'Surface_temperature',
-                                            'Max_difference_Tmd_Temperature', 'Unit_Temperature',
+        result_file = pd.DataFrame(columns=['Path', 'SBE_version', 'Start_Time', 'System_Upload_Date',
+                                            'Date_from_the_Name_File', 'Latitude', 'Row_Latitude', 'Longitude',
+                                            'Row_Longitude', 'Station', 'Station_From_Name', 'Max_Depth',
+                                            'Surface_temperature', 'Max_difference_Tmd_Temperature', 'Unit_Temperature',
                                             'Count_True', 'Count_Total', 'Dive_Begin_Index',
                                             'Dive_End_Index', 'Error'])
 
@@ -123,6 +123,9 @@ class DataTools:
         surface_temperature = DataTools.search_temperature_in_depth(dataframe, temperature_deg_c_index_column)
         max_tmd_vs_temperature = DataTools.search_max_difference_tmd_temperature(dataframe,
                                                                                  temperature_deg_c_index_column)
+        station_name_file_cnv = cnv_header_data.station_name_file_cnv
+        date_name_file_cnv = cnv_header_data.date_name_file_cnv
+
         total_number = dataframe.shape[0]
         true_number = total_number - result_tdm.iloc[0]
         dive_begin_index = index_list[0]
@@ -137,9 +140,11 @@ class DataTools:
         depth.to_csv(f'result_tmd_search\\data.csv', sep='\t', header=False, mode='a', index=False)
         temperature.to_csv(f'result_tmd_search\\data.csv', sep='\t', header=False, mode='a', index=False)
 
-        result_file.loc[0] = [path, sbe_version, start_time, system_upload_date, latitude, row_latitude, longitude,
-                              row_longitude, station, max_depth, surface_temperature, max_tmd_vs_temperature,
-                              name_temperature_deg_c_index_column, true_number, total_number, dive_begin_index,
+        result_file.loc[0] = [path, sbe_version, start_time, system_upload_date, date_name_file_cnv, latitude,
+                              row_latitude, longitude,
+                              row_longitude, station, station_name_file_cnv, max_depth, surface_temperature,
+                              max_tmd_vs_temperature, name_temperature_deg_c_index_column, true_number, total_number,
+                              dive_begin_index,
                               lift_begin_index, error]
 
         return result_file
