@@ -1,4 +1,5 @@
 import time
+import datetime
 
 from cnv_parser import CnvParser
 from conf_parser import ConfParser
@@ -8,9 +9,10 @@ from file_tools import FileTools
 
 if __name__ == '__main__':
     start = time.time()
+    current_date = datetime.datetime.now()
 
     file_tools = FileTools()
-    found_files = file_tools.search_files('CTD_Data\\2000')  # 'ctddata' or 'CTD Data' or
+    found_files = file_tools.search_files('CTD_Data')  # 'ctddata' or 'CTD Data' or
     # 'test_cnv_data\\cnv'
 
     for file in found_files:
@@ -34,7 +36,9 @@ if __name__ == '__main__':
             WriteToFile.write_to_file_tmd_result(result_search, 'result_tmd_search\\', 'result.csv')
 
         except Exception as e:
-            print(f'Error file: {file}; {type(e)}, {e}')
+            log_text = f'Error file: {file}; {type(e)}, {e}'
+            print(log_text)
+            WriteToFile.write_logs_file(current_date, log_text)
             continue
 
         end_cycle = time.time() - start_cycle

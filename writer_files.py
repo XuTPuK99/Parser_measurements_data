@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-import datetime
+
 
 # Данный модуль отвечает запись данных в файл
 
@@ -36,7 +36,9 @@ class WriteToFile:
         result_tmd_data.to_csv(file_path, sep='\t', header=False, index=False, mode='a')
 
     @staticmethod
-    def write_logs_file(log_text):
-        log_file = open(str(datetime.datetime.now()), 'x')
+    def write_logs_file(date, log_text):
+        file_path = f'logs\\log_{date}.txt'
+        file = open(file_path, 'a')
+        file.write(log_text)
 
 
