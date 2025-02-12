@@ -1,6 +1,7 @@
-import re
 import datetime
-from typing import Optional, List, Type
+import re
+from typing import List, Optional, Type
+
 from pydantic import BaseModel
 
 
@@ -9,7 +10,7 @@ class Sensor(BaseModel):
 
 
 class ConductivitySensor(Sensor):
-    name_sensor: Optional[str] = 'ConductivitySensor'
+    name_sensor: Optional[str] = "ConductivitySensor"
     M: Optional[float] = None
     A: Optional[float] = None
     B: Optional[float] = None
@@ -29,7 +30,7 @@ class ConductivitySensor(Sensor):
 
 
 class TemperatureSensor(Sensor):
-    name_sensor: Optional[str] = 'TemperatureSensor'
+    name_sensor: Optional[str] = "TemperatureSensor"
     F0_1: Optional[float] = None
     A: Optional[float] = None
     B: Optional[float] = None
@@ -47,7 +48,7 @@ class TemperatureSensor(Sensor):
 
 
 class PressureSensor(Sensor):
-    name_sensor: Optional[str] = 'PressureSensor'
+    name_sensor: Optional[str] = "PressureSensor"
     T1: Optional[float] = None
     T2: Optional[float] = None
     T3: Optional[float] = None
@@ -67,7 +68,7 @@ class PressureSensor(Sensor):
 
 
 class TransmissometerSensor(Sensor):
-    name_sensor: Optional[str] = 'TransmissometerSensor'
+    name_sensor: Optional[str] = "TransmissometerSensor"
     M: Optional[float] = None
     B: Optional[float] = None
     path_length: Optional[float] = None
@@ -75,12 +76,12 @@ class TransmissometerSensor(Sensor):
 
 
 class FirmwareVersion(BaseModel):
-    name: Optional[str] = 'Firmware version'
+    name: Optional[str] = "Firmware version"
     firmware_version: Optional[float] = None
 
 
 class UserPolynomialSensor1(Sensor):
-    name_sensor: Optional[str] = 'UserPolynomialSensor1'
+    name_sensor: Optional[str] = "UserPolynomialSensor1"
     calibration_date: Optional[datetime.datetime] = None
     A0: Optional[float] = None
     A1: Optional[float] = None
@@ -90,7 +91,7 @@ class UserPolynomialSensor1(Sensor):
 
 
 class UserPolynomialSensor2(Sensor):
-    name_sensor: Optional[str] = 'UserPolynomialSensor2'
+    name_sensor: Optional[str] = "UserPolynomialSensor2"
     calibration_date: Optional[datetime.datetime] = None
     A0: Optional[float] = None
     A1: Optional[float] = None
@@ -100,7 +101,7 @@ class UserPolynomialSensor2(Sensor):
 
 
 class UserPolynomialSensor3(Sensor):
-    name_sensor: Optional[str] = 'UserPolynomialSensor3'
+    name_sensor: Optional[str] = "UserPolynomialSensor3"
     calibration_date: Optional[datetime.datetime] = None
     A0: Optional[float] = None
     A1: Optional[float] = None
@@ -110,7 +111,7 @@ class UserPolynomialSensor3(Sensor):
 
 
 class PrimaryOxygenSensor(Sensor):
-    name_sensor: Optional[str] = 'PrimaryOxygenSensor'
+    name_sensor: Optional[str] = "PrimaryOxygenSensor"
     calibration_date: Optional[datetime.datetime] = None
     soc: Optional[float] = None
     tcor: Optional[float] = None
@@ -135,7 +136,7 @@ class PrimaryOxygenSensor(Sensor):
 
 
 class OBSSensor(Sensor):
-    name_sensor: Optional[str] = 'OBSSensor'
+    name_sensor: Optional[str] = "OBSSensor"
     calibration_date: Optional[datetime.datetime] = None
     a0: Optional[float] = None
     a1: Optional[float] = None
@@ -148,14 +149,25 @@ class SensorBuilder:
 
     @staticmethod
     def convert_str_in_mouth(month):
-        regular = r'\d{1,2}'
+        regular = r"\d{1,2}"
         match = re.search(regular, month)
         if match:
             return int(month)
 
-        regulars = [r'Jan?(?:uary|\.?)', r'Feb?(?:ruary|\.?)', r'Mar?(?:ch|\.?)', r'Apr?(?:il|\.?)',
-                    r'May', r'Jun(?:e|\.?)',  r'Jul(?:e|\.?)',  r'Aug?(?:ust|\.?)',r'Sept?(?:ember|\.?)',
-                    r'Oct?(?:ober|\.?)', r'Nov?(?:ember|\.?)',  r'Dec?(?:ember|\.?)']
+        regulars = [
+            r"Jan?(?:uary|\.?)",
+            r"Feb?(?:ruary|\.?)",
+            r"Mar?(?:ch|\.?)",
+            r"Apr?(?:il|\.?)",
+            r"May",
+            r"Jun(?:e|\.?)",
+            r"Jul(?:e|\.?)",
+            r"Aug?(?:ust|\.?)",
+            r"Sept?(?:ember|\.?)",
+            r"Oct?(?:ober|\.?)",
+            r"Nov?(?:ember|\.?)",
+            r"Dec?(?:ember|\.?)",
+        ]
 
         for number, regular in enumerate(regulars):
             match = re.search(regular, month)
@@ -164,14 +176,14 @@ class SensorBuilder:
 
     @staticmethod
     def convert_str_in_year(year):
-        regular = r'\d{1,4}'
+        regular = r"\d{1,4}"
         match = re.search(regular, year)
         if match:
             if len(match[0]) == 2:
                 if int(year) < 80:
-                    year = f'20{year}'
+                    year = f"20{year}"
                 else:
-                    year = f'19{year}'
+                    year = f"19{year}"
             return int(year)
         return None
 
@@ -183,11 +195,15 @@ class SensorBuilder:
             if item is None:
                 return None
 
-        regulars = [r'(\d{1,2})-(\d{1,2})-(\d{2,4})', r'(\d{1,2})-(\w+)-(\d{2,4})', r'(\d{1,2})-(\d{1,2})-(\d{2,4})\w']
+        regulars = [
+            r"(\d{1,2})-(\d{1,2})-(\d{2,4})",
+            r"(\d{1,2})-(\w+)-(\d{2,4})",
+            r"(\d{1,2})-(\d{1,2})-(\d{2,4})\w",
+        ]
         for regular in regulars:
             match = re.search(regular, date_string[0])
             if match:
-                date = match[0].split('-')
+                date = match[0].split("-")
                 day = int(date[0])
                 month = self.convert_str_in_mouth(date[1])
                 year = self.convert_str_in_year(date[2])
@@ -199,7 +215,7 @@ class SensorBuilder:
         if num < 0 or num >= len(self.conf_data):
             return None
         else:
-            list_split_string = self.conf_data[num].split(' ')
+            list_split_string = self.conf_data[num].split(" ")
             return list_split_string
 
 
@@ -230,7 +246,7 @@ class ConductivitySensorBuilder(SensorBuilder):
             H=float(split_string_3[1]) if split_string_3 else None,
             I=float(split_string_3[2]) if split_string_3 else None,
             J=float(split_string_3[3]) if split_string_3 else None,
-            CTCOR_2=float(split_string_3[4]) if split_string_3 else None
+            CTCOR_2=float(split_string_3[4]) if split_string_3 else None,
         )
 
 
@@ -258,7 +274,7 @@ class TemperatureSensorBuilder(SensorBuilder):
             G=float(split_string_2[1]) if split_string_2 else None,
             H=float(split_string_2[2]) if split_string_2 else None,
             I=float(split_string_2[3]) if split_string_2 else None,
-            J=float(split_string_2[4]) if split_string_2 else None
+            J=float(split_string_2[4]) if split_string_2 else None,
         )
 
 
@@ -290,8 +306,8 @@ class PressureSensorBuilder(SensorBuilder):
             sensor_type=float(split_string_3[4]) if split_string_3 else None,
             AD590_M=float(split_string_3[5]) if split_string_3 else None,
             AD590_B=float(split_string_3[6]) if split_string_3 else None,
-            calibration_date=date
-            )
+            calibration_date=date,
+        )
 
 
 class TransmissometerSensorBuilder(SensorBuilder):
@@ -307,7 +323,7 @@ class TransmissometerSensorBuilder(SensorBuilder):
             M=split_string_1[0] if split_string_1 else None,
             B=split_string_1[1] if split_string_1 else None,
             path_length=split_string_1[2] if split_string_1 else None,
-            calibration_date=date
+            calibration_date=date,
         )
 
 
@@ -319,9 +335,7 @@ class FirmwareVersionBuilder:
         if num >= len(self.conf_data) or len(self.conf_data[num]) == 0:
             return None
 
-        return FirmwareVersion(
-            firmware_version=float(self.conf_data[num])
-        )
+        return FirmwareVersion(firmware_version=float(self.conf_data[num]))
 
 
 class UserPolynomialSensorBuilder1(SensorBuilder):
@@ -340,7 +354,7 @@ class UserPolynomialSensorBuilder1(SensorBuilder):
             A1=float(split_string_1[1]) if split_string_1 else None,
             A2=float(split_string_1[2]) if split_string_1 else None,
             A3=float(split_string_1[3]) if split_string_1 else None,
-            UserPoly1=str(split_string_2) if split_string_2 else None
+            UserPoly1=str(split_string_2) if split_string_2 else None,
         )
 
 
@@ -360,7 +374,7 @@ class UserPolynomialSensorBuilder2(SensorBuilder):
             A1=float(split_string_1[1]) if split_string_1 else None,
             A2=float(split_string_1[2]) if split_string_1 else None,
             A3=float(split_string_1[3]) if split_string_1 else None,
-            UserPoly2=str(split_string_2) if split_string_2 else None
+            UserPoly2=str(split_string_2) if split_string_2 else None,
         )
 
 
@@ -380,7 +394,7 @@ class UserPolynomialSensorBuilder3(SensorBuilder):
             A1=float(split_string_1[1]) if split_string_1 else None,
             A2=float(split_string_1[2]) if split_string_1 else None,
             A3=float(split_string_1[3]) if split_string_1 else None,
-            UserPoly3=str(split_string_2) if split_string_2 else None
+            UserPoly3=str(split_string_2) if split_string_2 else None,
         )
 
 
@@ -416,7 +430,7 @@ class PrimaryOxygenSensorBuilder(SensorBuilder):
             D2=float(split_string_3[10]) if split_string_3 else None,
             H1=float(split_string_3[11]) if split_string_3 else None,
             H2=float(split_string_3[12]) if split_string_3 else None,
-            H3=float(split_string_3[13]) if split_string_3 else None
+            H3=float(split_string_3[13]) if split_string_3 else None,
         )
 
 
@@ -433,7 +447,7 @@ class OBSSensorBuilder(SensorBuilder):
             calibration_date=date,
             a0=float(split_string_1[0]) if split_string_1 else None,
             a1=float(split_string_1[1]) if split_string_1 else None,
-            a2=float(split_string_1[2]) if split_string_1 else None
+            a2=float(split_string_1[2]) if split_string_1 else None,
         )
 
 
@@ -448,7 +462,7 @@ class FabricSensor:
         76: UserPolynomialSensorBuilder2,
         79: UserPolynomialSensorBuilder3,
         162: PrimaryOxygenSensorBuilder,
-        250: OBSSensorBuilder
+        250: OBSSensorBuilder,
     }
 
     def get(self, num, conf_data):
@@ -464,14 +478,14 @@ class ConfData(BaseModel):
 class ConfParser:
     @staticmethod
     def conf_parse(file_config_path):
-        file_config_path = file_config_path.split('\\')
+        file_config_path = file_config_path.split("\\")
         if len(file_config_path) > 1:
             file_config_path = file_config_path[len(file_config_path) - 1]
 
         fabric = FabricSensor()
         conf_data = ConfData()
 
-        with (open(f'config\\{file_config_path}', 'r')) as file:
+        with open(f"config\\{file_config_path}", "r") as file:
             config_file_data = file.read().splitlines()
 
         for i in range(len(config_file_data)):

@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import Dict, List, Optional, Union
+from typing import List, Optional
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict

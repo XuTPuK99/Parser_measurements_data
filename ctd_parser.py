@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict
 
 class HeaderData(BaseModel):
     full_path_file: Optional[str] = None
+    expedition_name: Optional[str] = None
     name_file_cnv: Optional[str] = None
     station_name_file_cnv: Optional[str] = None
     date_name_file_cnv: Optional[str] = None
@@ -66,6 +67,12 @@ class CnvParser:
         header_data = HeaderData()
 
         header_data.full_path_file = file_name
+
+        regular = r"\\(\d{4}\\.+?)\\"
+        match = re.search(regular, file_name)
+        if match:
+            header_data.expedition_name = match[1]
+        print(header_data.expedition_name)
 
         regular = r"(?<=\*\sSea-Bird\s)SBE\s?\d+"
         match = re.search(regular, data)
@@ -357,7 +364,7 @@ class CnvParser:
             regular = r"\s+"
             values = re.split(regular, row)
 
-            body_data.table_data.append([item for item in values if len(item)])
+            body_data.table_data.append([float(item) for item in values if len(item)])
         body_data.table_data = pd.DataFrame(body_data.table_data)
 
         return body_data

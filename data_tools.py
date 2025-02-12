@@ -1,6 +1,6 @@
 import re
-import pandas as pd
 
+import pandas as pd
 
 # Данный модуль отвечает за Tmd анализ cnv файла
 
@@ -11,6 +11,7 @@ class DataTools:
         data_type, dataframe, temperature_deg_c_index_column=None
     ):  # surface_temperature
         # Данная функция принимает pandas.Dataframe и находит в нём
+
         if data_type == "cnv":
             dataframe.reset_index()
             tempreture = dataframe.iloc[0, temperature_deg_c_index_column]
@@ -65,7 +66,7 @@ class DataTools:
             if (number - dive_begin_index) >= changing_values_range:
                 find_begin_dive = True
 
-            if float(item) > max_depth:
+            if float(item) > float(max_depth):
                 max_depth = item
                 lift_begin_index = number
 
@@ -210,8 +211,9 @@ class DataTools:
             else "None"
         )
         surface_temperature = DataTools.search_temperature_in_depth(
-            dataframe, temperature_deg_c_index_column
+            data_type, dataframe, temperature_deg_c_index_column
         )
+
         max_tmd_vs_temperature = DataTools.search_max_difference_tmd_temperature(
             data_type, dataframe, temperature_deg_c_index_column
         )
@@ -223,7 +225,7 @@ class DataTools:
         dive_begin_index = index_list[0]
         lift_begin_index = index_list[1]
         error = DataTools.log_error_flag_data(
-            dataframe, depfm_index_column, temperature_deg_c_index_column
+            data_type, dataframe, depfm_index_column, temperature_deg_c_index_column
         )
         name_temperature_deg_c_index_column = name_temperature_deg_c_index_column
 
