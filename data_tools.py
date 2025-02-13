@@ -45,22 +45,30 @@ class DataTools:
         return None
 
     @staticmethod
-    def data_clipping(data_type, cnv_body_data):
+    def data_clipping(data_type, body_data):
         if data_type == "cnv":
-            data = pd.DataFrame(cnv_body_data.table_data).loc[:, 0]
+            data = pd.DataFrame(body_data.table_data).loc[:, 0]
         if data_type == "csv":
-            data = pd.DataFrame(cnv_body_data.table_data)["Depth [m]"]
+            data = pd.DataFrame(body_data.table_data)["Depth [m]"]
 
         index_list = []
 
         dive_begin_index = 0
         max_depth = 0
         lift_begin_index = 0
+
         changing_values_range = 4  # start 0 value
         find_begin_dive = False
 
         for number, item in enumerate(data):
-            if not find_begin_dive and number != 0 and data.loc[number - 1] >= item:
+            if item == 0 and number <= len(data) / 2:
+                find_begin_dive = False
+
+            if (
+                not find_begin_dive
+                and number != 0
+                and (data.loc[number - 1] >= item or data.loc[number - 1] == 0)
+            ):
                 dive_begin_index = number
 
             if (number - dive_begin_index) >= changing_values_range:
@@ -73,11 +81,11 @@ class DataTools:
         index_list.append(dive_begin_index)
         index_list.append(lift_begin_index)
 
-        cnv_body_data.table_data = cnv_body_data.table_data.loc[
+        body_data.table_data = body_data.table_data.loc[
             range(dive_begin_index, lift_begin_index + 1)
         ]
 
-        return cnv_body_data, index_list
+        return body_data, index_list
 
     @staticmethod
     def log_error_flag_data(
@@ -300,7 +308,7 @@ class DataTools:
         result_file = pd.DataFrame(
             columns=[
                 "Path",
-                "Sond_№",
+                "Sond_number",
                 "Soft_Version",
                 "Start_Time",
                 "End_Time",
@@ -313,6 +321,9 @@ class DataTools:
                 "Count_Total",
                 "Dive_Begin_Index",
                 "Dive_End_Index",
+                "Date_coef",
+                "DO_coef(G,H)",
+                "pH_coef(A,B)",
                 "Error",
             ]
         )
@@ -372,6 +383,18 @@ class DataTools:
         true_number = total_number - result_tdm.iloc[0]
         dive_begin_index = index_list[0]
         lift_begin_index = index_list[1]
+        data_coef = csv_header_data.coef_date
+        do_coef = (
+            rf"{csv_header_data.ch_list[7][5]}"
+            + "   "
+            + rf"{csv_header_data.ch_list[7][6]}"
+        )
+        ph_coef = (
+            rf"{csv_header_data.ch_list[9][0]}"
+            + " "
+            + rf"{csv_header_data.ch_list[9][1]}"
+        )
+
         error = DataTools.log_error_flag_data(data_type, dataframe)
 
         depth = dataframe["Depth [m]"].to_frame().T
@@ -408,6 +431,9 @@ class DataTools:
             total_number,
             dive_begin_index,
             lift_begin_index,
+            data_coef,
+            do_coef,
+            ph_coef,
             error,
         ]
 

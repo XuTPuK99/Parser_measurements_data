@@ -72,7 +72,6 @@ class CnvParser:
         match = re.search(regular, file_name)
         if match:
             header_data.expedition_name = match[1]
-        print(header_data.expedition_name)
 
         regular = r"(?<=\*\sSea-Bird\s)SBE\s?\d+"
         match = re.search(regular, data)

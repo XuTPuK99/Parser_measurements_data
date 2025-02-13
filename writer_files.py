@@ -55,7 +55,7 @@ class WriteToFile:
                 result_file = pd.DataFrame(
                     columns=[
                         "Path",
-                        "Sond_№",
+                        "Sond_number",
                         "Soft_Version",
                         "Start_Time",
                         "End_Time",
@@ -68,6 +68,9 @@ class WriteToFile:
                         "Count_Total",
                         "Dive_Begin_Index",
                         "Dive_End_Index",
+                        "Date_coef",
+                        "DO_coef(G,H)",
+                        "pH_coef(A,B)",
                         "Error",
                     ]
                 )
